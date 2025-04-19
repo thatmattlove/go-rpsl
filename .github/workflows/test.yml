@@ -1,0 +1,29 @@
+name: test
+
+on:
+    push:
+        tags: ["*"]
+    pull_request:
+        branches: ["main"]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Go Setup
+              uses: actions/setup-go@v5
+              with:
+                  go-version: "1.24.x"
+
+            - name: Run Tests
+              run: go test -v ./... -coverprofile cover.out
+
+            - name: Codecov
+              uses: codecov/codecov-action@v3
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
