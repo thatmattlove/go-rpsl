@@ -79,7 +79,7 @@ type AutNum struct {
 }
 
 // Add extra pre-formatted attributes to the aut-num object.
-func (a AutNum) AddExtra(key, value string) {
+func (a *AutNum) AddExtra(key, value string) {
 	if a.Extra == nil {
 		a.Extra = make(map[string]string)
 	}

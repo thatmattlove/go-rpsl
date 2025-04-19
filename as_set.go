@@ -51,7 +51,7 @@ type ASSet struct {
 }
 
 // Add extra pre-formatted attributes to the as-set object.
-func (a ASSet) AddExtra(key, value string) {
+func (a *ASSet) AddExtra(key, value string) {
 	if a.Extra == nil {
 		a.Extra = make(map[string]string)
 	}

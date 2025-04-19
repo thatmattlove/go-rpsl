@@ -31,7 +31,7 @@ type Route6 struct {
 }
 
 // Add extra pre-formatted attributes to the route6 object.
-func (r Route6) AddExtra(key, value string) {
+func (r *Route6) AddExtra(key, value string) {
 	if r.Extra == nil {
 		r.Extra = make(map[string]string)
 	}

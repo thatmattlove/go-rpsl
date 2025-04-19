@@ -9,13 +9,12 @@ import (
 )
 
 func Test_ASSet(t *testing.T) {
+	t.Parallel()
 	asSet := &rpsl.ASSet{
 		ASSet:   "AS-ACME",
 		Members: rpsl.ASSetMembers(rpsl.ASNName(65000), rpsl.ASSetName("AS-65001")),
 	}
 	t.Run("rpsl", func(t *testing.T) {
-		t.Parallel()
-
 		exp := `as-set: AS-ACME
 members: AS65000
 members: AS-65001`
@@ -24,8 +23,19 @@ members: AS-65001`
 		testza.AssertEqual(t, exp, result)
 	})
 	t.Run("string", func(t *testing.T) {
-		t.Parallel()
 		testza.AssertEqual(t, "AS-ACME", asSet.String())
+	})
+	t.Run("with extra", func(t *testing.T) {
+		asSet.AddExtra("extra", "value")
+		testza.AssertNotNil(t, asSet.Extra)
+		testza.AssertEqual(t, "value", asSet.Extra["extra"])
+		exp := `as-set: AS-ACME
+members: AS65000
+members: AS-65001
+extra: value`
+		result, err := asSet.RPSL()
+		testza.AssertNoError(t, err)
+		testza.AssertEqual(t, exp, result)
 	})
 }
 

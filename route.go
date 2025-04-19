@@ -32,7 +32,7 @@ type Route struct {
 }
 
 // Add extra pre-formatted attributes to the route object.
-func (r Route) AddExtra(key, value string) {
+func (r *Route) AddExtra(key, value string) {
 	if r.Extra == nil {
 		r.Extra = make(map[string]string)
 	}

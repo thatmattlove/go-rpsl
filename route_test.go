@@ -31,8 +31,8 @@ mnt-by: MNT-TEST`
 	t.Run("with extra", func(t *testing.T) {
 		r.Source = "ARIN"
 		r.AddExtra("extra", "value")
+		testza.AssertNotNil(t, r.Extra)
 		testza.AssertEqual(t, "value", r.Extra["extra"])
-		// r.Extra = map[string]string{"extra": "value"}
 		exp := `route: 192.0.2.0/24
 origin: AS65000
 descr: test
