@@ -28,6 +28,9 @@ tech-c: TEST-TECH
 mnt-by: MNT-TEST`
 		testza.AssertEqual(t, exp, result)
 	})
+	t.Run("string", func(t *testing.T) {
+		testza.AssertEqual(t, "192.0.2.0/24", r.String())
+	})
 	t.Run("with extra", func(t *testing.T) {
 		r.Source = "ARIN"
 		r.AddExtra("extra", "value")

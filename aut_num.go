@@ -86,6 +86,11 @@ func (a *AutNum) AddExtra(key, value string) {
 	a.Extra[key] = value
 }
 
+// String representation of the aut-num in RPSL format. E.g. AS65000.
+func (a *AutNum) String() string {
+	return a.AutNum.String()
+}
+
 // RPSL represents the aut-num object in RPSL format.
 func (a *AutNum) RPSL() (string, error) {
 	return serialize.RPSL(a)

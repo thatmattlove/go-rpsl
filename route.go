@@ -39,6 +39,11 @@ func (r *Route) AddExtra(key, value string) {
 	r.Extra[key] = value
 }
 
+// String representation of the route in RPSL format. E.g. 192.0.2.0/24.
+func (r *Route) String() string {
+	return r.Route
+}
+
 // RPSL represents the route object in RPSL format.
 func (r *Route) RPSL() (string, error) {
 	return serialize.RPSL(r)

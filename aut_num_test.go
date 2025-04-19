@@ -31,6 +31,9 @@ as-name: AS-65000
 member-of: AS65001, AS65002, AS-ACME`
 		testza.AssertEqual(t, exp, result)
 	})
+	t.Run("string", func(t *testing.T) {
+		testza.AssertEqual(t, "AS65000", autNum.String())
+	})
 	t.Run("with extra", func(t *testing.T) {
 		autNum.Source = "ARIN"
 		autNum.AddExtra("extra", "value")

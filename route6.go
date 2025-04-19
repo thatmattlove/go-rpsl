@@ -38,6 +38,11 @@ func (r *Route6) AddExtra(key, value string) {
 	r.Extra[key] = value
 }
 
+// String representation of the route6 in RPSL format. E.g. 2001:db8::/32.
+func (r *Route6) String() string {
+	return r.Route6
+}
+
 // RPSL represents the route6 object in RPSL format.
 func (r *Route6) RPSL() (string, error) {
 	return serialize.RPSL(r)

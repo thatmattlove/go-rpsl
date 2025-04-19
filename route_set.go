@@ -1,11 +1,30 @@
 package rpsl
 
 import (
+	"regexp"
 	"strings"
 
 	"go.mdl.wtf/rpsl/internal/serialize"
 	"go.mdl.wtf/rpsl/internal/value"
 )
+
+var startsWithRSDash = regexp.MustCompile(`^[RaSs]{2}\-.*$`)
+var startsWithRS = regexp.MustCompile(`^[RaSs]{2}.*$`)
+
+// RSMember creates a route-set member type, such as an IPv4 prefix, IPv6 prefix, or other route-set name.
+func RSMember(v string) value.V {
+	return value.V(strings.ToUpper(v))
+}
+
+// RSName creates an route-set member type, e.g. RS-ACME.
+func RSName(name string) value.V {
+	if startsWithRSDash.MatchString(name) {
+		name = name[3:]
+	} else if startsWithRS.MatchString(name) {
+		name = name[2:]
+	}
+	return value.V("RS-" + name)
+}
 
 // RouteSet is an RPSL 'route-set class' object. RFC2622 specifies that 'the route-set class is a
 // set of route prefixes, not of RPSL route objects'; however, because some registries support the
@@ -51,9 +70,9 @@ func (rs *RouteSet) AddExtra(key, value string) {
 	rs.Extra[key] = value
 }
 
-// RSMember creates a route-set member type, such as an IPv4 prefix, IPv6 prefix, or other route-set name.
-func RSMember(v string) value.V {
-	return value.V(strings.ToUpper(v))
+// String representation of the route-set in RPSL format. E.g. RS-ACME.
+func (rs *RouteSet) String() string {
+	return RSName(rs.RouteSet).String()
 }
 
 // RPSL represents the route-set object in RPSL format.

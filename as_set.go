@@ -59,7 +59,7 @@ func (a *ASSet) AddExtra(key, value string) {
 }
 
 // String representation of the as-set in RPSL format. E.g. AS-ACME.
-func (a ASSet) String() string {
+func (a *ASSet) String() string {
 	return string(ASSetName(a.ASSet))
 }
 
