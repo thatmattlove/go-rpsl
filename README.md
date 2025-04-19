@@ -3,7 +3,7 @@ Go Library for Creating [RPSL](https://datatracker.ietf.org/doc/rfc2622/) Object
 
 [![Go Reference](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=for-the-badge)](https://pkg.go.dev/go.mdl.wtf/rpsl)
 
-[![GitHub Tag](https://img.shields.io/github/v/tag/thatmattlove/go-rpsl?style=for-the-badge&label=Version)](https://github.com/thatmattlove/go-rpsl/tags) [![Test Status](https://img.shields.io/github/actions/workflow/status/thatmattlove/go-rpsl/test.yml?style=for-the-badge)](https://github.com/thatmattlove/go-rpsl/actions/workflows/test.yml) [![Test Coverage](https://img.shields.io/coverallsCoverage/github/thatmattlove/go-rpsl?style=for-the-badge)](https://coveralls.io/github/thatmattlove/go-rpsl)
+[![GitHub Tag](https://img.shields.io/github/v/tag/thatmattlove/go-rpsl?style=for-the-badge&label=Version)](https://github.com/thatmattlove/go-rpsl/tags) [![Test Status](https://img.shields.io/github/actions/workflow/status/thatmattlove/go-rpsl/test.yml?style=for-the-badge)](https://github.com/thatmattlove/go-rpsl/actions/workflows/test.yml) [![Test Coverage](https://img.shields.io/codecov/c/github/thatmattlove/go-rpsl?style=for-the-badge)](https://codecov.io/gh/thatmattlove/go-rpsl)
 
 `rpsl` is a library for creating and serializing Routing Policy Specification Language (RPSL) objects, which are used by Internet Routing Registry (IRR) databases for route origin validation.
 
