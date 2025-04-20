@@ -1,11 +1,23 @@
 package serialize_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/MarvinJWendt/testza"
 	"go.mdl.wtf/rpsl/internal/serialize"
 )
+
+type TypeWithRPSLMethod string
+
+func (t TypeWithRPSLMethod) RPSL() string {
+	parts := strings.Split(string(t), "\n")
+	out := ""
+	for i := range parts {
+		out += "key: " + parts[i] + "\n"
+	}
+	return strings.TrimSuffix(out, "\n")
+}
 
 func Test_RPSL(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
@@ -92,6 +104,22 @@ key2: 65000`
 		exp := `key1: value1
 key2: 65000
 key3: value3`
+		result, err := serialize.RPSL(s)
+		testza.AssertNoError(t, err)
+		testza.AssertEqual(t, exp, result)
+	})
+	t.Run("with rpsl method", func(t *testing.T) {
+		type Struct struct {
+			Key TypeWithRPSLMethod `rpsl:"key"`
+		}
+		s := &Struct{
+			Key: `value1
+value2
+value3`,
+		}
+		exp := `key: value1
+key: value2
+key: value3`
 		result, err := serialize.RPSL(s)
 		testza.AssertNoError(t, err)
 		testza.AssertEqual(t, exp, result)

@@ -35,6 +35,26 @@ extra: value`
 		testza.AssertNoError(t, err)
 		testza.AssertEqual(t, exp, result)
 	})
+	t.Run("with descr", func(t *testing.T) {
+		t.Parallel()
+		rs := &rpsl.RouteSet{
+			RouteSet: "RS-ACME",
+			Description: `123 Name Street
+City, ST
+12345
+US`,
+			Members: rpsl.RSMembers(rpsl.RSMember("192.0.2.0/24")),
+		}
+		exp := `route-set: RS-ACME
+descr: 123 Name Street
+descr: City, ST
+descr: 12345
+descr: US
+members: 192.0.2.0/24`
+		result, err := rs.RPSL()
+		testza.AssertNoError(t, err)
+		testza.AssertEqual(t, exp, result)
+	})
 }
 
 func Test_RSSetName(t *testing.T) {

@@ -11,6 +11,10 @@ import (
 
 var ErrMustBeStruct = errors.New("value must be a struct")
 
+type WithRPSL interface {
+	RPSL() string
+}
+
 func RPSL(s any) (string, error) {
 	t := reflect.TypeOf(s)
 	v := reflect.ValueOf(s)
@@ -49,6 +53,9 @@ func RPSL(s any) (string, error) {
 		}
 		value := ""
 		switch stype := sval.(type) {
+		case WithRPSL:
+			out += stype.RPSL() + "\n"
+			continue
 		case uint32:
 			value = strconv.FormatUint(uint64(stype), 10)
 		default:

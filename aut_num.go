@@ -39,7 +39,7 @@ type AutNum struct {
 	//    *Required
 	ASName string `rpsl:"as-name"`
 	// Description for the aut-num object.
-	Description string `rpsl:"descr,omitempty"`
+	Description Description `rpsl:"descr,omitempty"`
 	// Admin Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
 	AdminPOC string `rpsl:"admin-c,omitempty"`

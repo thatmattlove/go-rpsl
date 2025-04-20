@@ -37,6 +37,22 @@ extra: value`
 		testza.AssertNoError(t, err)
 		testza.AssertEqual(t, exp, result)
 	})
+	t.Run("with descr", func(t *testing.T) {
+		t.Parallel()
+		asSet := &rpsl.ASSet{
+			ASSet:   "AS-ACME",
+			Members: rpsl.ASSetMembers(rpsl.ASNName(65000)),
+			Description: `Some
+Address`,
+		}
+		exp := `as-set: AS-ACME
+descr: Some
+descr: Address
+members: AS65000`
+		result, err := asSet.RPSL()
+		testza.AssertNoError(t, err)
+		testza.AssertEqual(t, exp, result)
+	})
 }
 
 func Test_ASSetName(t *testing.T) {

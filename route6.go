@@ -13,7 +13,7 @@ type Route6 struct {
 	//    *Required
 	Origin ASN `rpsl:"origin"`
 	// Description for the route6 object.
-	Description string `rpsl:"descr,omitempty"`
+	Description Description `rpsl:"descr,omitempty"`
 	// Admin Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
 	AdminPOC string `rpsl:"admin-c,omitempty"`

@@ -48,5 +48,24 @@ source: ARIN`
 		testza.AssertNoError(t, err)
 		testza.AssertEqual(t, exp, result)
 	})
-
+	t.Run("with descr", func(t *testing.T) {
+		t.Parallel()
+		autNum := &rpsl.AutNum{
+			AutNum: rpsl.ASN(65000),
+			ASName: "AS-65000",
+			Source: "ARIN",
+			Description: `this is
+a description`,
+			MemberOf: rpsl.AutNumMembers(rpsl.ASNName(65001)),
+		}
+		exp := `aut-num: AS65000
+as-name: AS-65000
+descr: this is
+descr: a description
+member-of: AS65001
+source: ARIN`
+		result, err := autNum.RPSL()
+		testza.AssertNoError(t, err)
+		testza.AssertEqual(t, exp, result)
+	})
 }

@@ -48,4 +48,24 @@ source: ARIN`
 		testza.AssertNoError(t, err)
 		testza.AssertEqual(t, exp, result)
 	})
+	t.Run("with long descr", func(t *testing.T) {
+		r.Description = `123 Name Street
+City, ST
+12345
+US`
+		exp := `route: 2001:db8::/32
+origin: AS65000
+descr: 123 Name Street
+descr: City, ST
+descr: 12345
+descr: US
+admin-c: TEST-ADMIN
+tech-c: TEST-TECH
+mnt-by: MNT-TEST
+extra: value
+source: ARIN`
+		result, err := r.RPSL()
+		testza.AssertNoError(t, err)
+		testza.AssertEqual(t, exp, result)
+	})
 }
