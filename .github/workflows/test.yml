@@ -24,10 +24,10 @@ jobs:
                   repo-token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Run Tests
-              run: task test
+              run: task ci_test
 
             - name: Run Coverage
-              run: task coverage
+              run: task ci_coverage
 
             - name: Codecov
               uses: codecov/codecov-action@v5

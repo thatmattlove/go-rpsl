@@ -11,3 +11,14 @@ tasks:
       - 'go test ./... {{.CLI_ARGS}} -json | go tool tparse -all'
       - 'go test ./... -coverprofile=cover.out'
       - 'go tool cover -html=cover.out'
+  ci_test:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - 'set -o pipefail'
+      - 'go test ./... -json -cover | go tool tparse -all'
+  ci_coverage:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - 'go test ./... -json | go tool tparse -all'
+      - 'go test ./... -coverprofile=cover.out'
+      - 'go tool cover -html=cover.out'
