@@ -18,3 +18,15 @@ func (d Description) RPSL() string {
 	}
 	return strings.TrimSuffix(out, "\n")
 }
+
+// UnmarshalBinary parses a byte string to a description, maintaining the previous descr
+// lines when applicable.
+func (d Description) UnmarshalBinary(b []byte) (Description, error) {
+	asS := string(b)
+	if len(d) == 0 {
+		return Description(asS), nil
+	}
+	parts := strings.Split(string(d), "\n")
+	parts = append(parts, asS)
+	return Description(strings.Join(parts, "\n")), nil
+}

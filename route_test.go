@@ -3,7 +3,8 @@ package rpsl_test
 import (
 	"testing"
 
-	"github.com/MarvinJWendt/testza"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.mdl.wtf/rpsl"
 )
 
@@ -19,23 +20,23 @@ func TestRoute_RPSL(t *testing.T) {
 	}
 	t.Run("base", func(t *testing.T) {
 		result, err := r.RPSL()
-		testza.AssertNoError(t, err)
+		require.NoError(t, err)
 		exp := `route: 192.0.2.0/24
 origin: AS65000
 descr: test
 admin-c: TEST-ADMIN
 tech-c: TEST-TECH
 mnt-by: MNT-TEST`
-		testza.AssertEqual(t, exp, result)
+		assert.Equal(t, exp, result)
 	})
 	t.Run("string", func(t *testing.T) {
-		testza.AssertEqual(t, "192.0.2.0/24", r.String())
+		assert.Equal(t, "192.0.2.0/24", r.String())
 	})
 	t.Run("with extra", func(t *testing.T) {
 		r.Source = "ARIN"
 		r.AddExtra("extra", "value")
-		testza.AssertNotNil(t, r.Extra)
-		testza.AssertEqual(t, "value", r.Extra["extra"])
+		assert.NotNil(t, r.Extra)
+		assert.Equal(t, "value", r.Extra["extra"])
 		exp := `route: 192.0.2.0/24
 origin: AS65000
 descr: test
@@ -45,8 +46,8 @@ mnt-by: MNT-TEST
 extra: value
 source: ARIN`
 		result, err := r.RPSL()
-		testza.AssertNoError(t, err)
-		testza.AssertEqual(t, exp, result)
+		require.NoError(t, err)
+		assert.Equal(t, exp, result)
 	})
 	t.Run("with long descr", func(t *testing.T) {
 		r.Description = `123 Name Street
@@ -65,7 +66,7 @@ mnt-by: MNT-TEST
 extra: value
 source: ARIN`
 		result, err := r.RPSL()
-		testza.AssertNoError(t, err)
-		testza.AssertEqual(t, exp, result)
+		require.NoError(t, err)
+		assert.Equal(t, exp, result)
 	})
 }

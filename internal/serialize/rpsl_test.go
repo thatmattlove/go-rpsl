@@ -4,7 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/MarvinJWendt/testza"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.mdl.wtf/rpsl/internal/serialize"
 )
 
@@ -31,10 +32,10 @@ func Test_RPSL(t *testing.T) {
 			Key2: 65000,
 		}
 		result, err := serialize.RPSL(s)
-		testza.AssertNoError(t, err)
+		require.NoError(t, err)
 		exp := `key1: value1
 key2: 65000`
-		testza.AssertEqual(t, exp, result)
+		assert.Equal(t, exp, result)
 	})
 	t.Run("omitempty", func(t *testing.T) {
 		t.Parallel()
@@ -48,15 +49,15 @@ key2: 65000`
 			Key2: 65000,
 		}
 		result, err := serialize.RPSL(s)
-		testza.AssertNoError(t, err)
+		require.NoError(t, err)
 		exp := `key1: value1
 key2: 65000`
-		testza.AssertEqual(t, exp, result)
+		assert.Equal(t, exp, result)
 	})
 	t.Run("non-struct", func(t *testing.T) {
 		t.Parallel()
 		_, err := serialize.RPSL("non-struct")
-		testza.AssertErrorIs(t, err, serialize.ErrMustBeStruct)
+		assert.ErrorIs(t, err, serialize.ErrMustBeStruct)
 	})
 	t.Run("invalid tag", func(t *testing.T) {
 		t.Parallel()
@@ -70,7 +71,7 @@ key2: 65000`
 			Key2: 65000,
 		}
 		_, err := serialize.RPSL(s)
-		testza.AssertContains(t, err.Error(), "has an invalid")
+		assert.ErrorContains(t, err, "has an invalid")
 	})
 	t.Run("no tag", func(t *testing.T) {
 		t.Parallel()
@@ -85,10 +86,10 @@ key2: 65000`
 			Key3: "this should not show up",
 		}
 		result, err := serialize.RPSL(s)
-		testza.AssertNoError(t, err)
+		require.NoError(t, err)
 		exp := `key1: value1
 key2: 65000`
-		testza.AssertEqual(t, exp, result)
+		assert.Equal(t, exp, result)
 	})
 	t.Run("with extra", func(t *testing.T) {
 		type Struct struct {
@@ -105,8 +106,8 @@ key2: 65000`
 key2: 65000
 key3: value3`
 		result, err := serialize.RPSL(s)
-		testza.AssertNoError(t, err)
-		testza.AssertEqual(t, exp, result)
+		require.NoError(t, err)
+		assert.Equal(t, exp, result)
 	})
 	t.Run("with rpsl method", func(t *testing.T) {
 		type Struct struct {
@@ -121,7 +122,7 @@ value3`,
 key: value2
 key: value3`
 		result, err := serialize.RPSL(s)
-		testza.AssertNoError(t, err)
-		testza.AssertEqual(t, exp, result)
+		require.NoError(t, err)
+		assert.Equal(t, exp, result)
 	})
 }

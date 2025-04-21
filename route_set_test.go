@@ -3,7 +3,8 @@ package rpsl_test
 import (
 	"testing"
 
-	"github.com/MarvinJWendt/testza"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.mdl.wtf/rpsl"
 	"go.mdl.wtf/rpsl/internal/value"
 )
@@ -18,22 +19,22 @@ func Test_RouteSet(t *testing.T) {
 		exp := `route-set: RS-ACME
 members: 192.0.2.0/24,RS-CORP`
 		result, err := rs.RPSL()
-		testza.AssertNoError(t, err)
-		testza.AssertEqual(t, exp, result)
+		require.NoError(t, err)
+		assert.Equal(t, exp, result)
 	})
 	t.Run("string", func(t *testing.T) {
-		testza.AssertEqual(t, "RS-ACME", rs.String())
+		assert.Equal(t, "RS-ACME", rs.String())
 	})
 	t.Run("with extra", func(t *testing.T) {
 		rs.AddExtra("extra", "value")
-		testza.AssertNotNil(t, rs.Extra)
-		testza.AssertEqual(t, "value", rs.Extra["extra"])
+		assert.NotNil(t, rs.Extra)
+		assert.Equal(t, "value", rs.Extra["extra"])
 		exp := `route-set: RS-ACME
 members: 192.0.2.0/24,RS-CORP
 extra: value`
 		result, err := rs.RPSL()
-		testza.AssertNoError(t, err)
-		testza.AssertEqual(t, exp, result)
+		require.NoError(t, err)
+		assert.Equal(t, exp, result)
 	})
 	t.Run("with descr", func(t *testing.T) {
 		t.Parallel()
@@ -52,22 +53,22 @@ descr: 12345
 descr: US
 members: 192.0.2.0/24`
 		result, err := rs.RPSL()
-		testza.AssertNoError(t, err)
-		testza.AssertEqual(t, exp, result)
+		require.NoError(t, err)
+		assert.Equal(t, exp, result)
 	})
 }
 
 func Test_RSSetName(t *testing.T) {
 	t.Run("dash", func(t *testing.T) {
 		t.Parallel()
-		testza.AssertEqual(t, value.V("RS-ACME"), rpsl.RSName("RS-ACME"))
+		assert.Equal(t, value.V("RS-ACME"), rpsl.RSName("RS-ACME"))
 	})
 	t.Run("no dash", func(t *testing.T) {
 		t.Parallel()
-		testza.AssertEqual(t, value.V("RS-ACME"), rpsl.RSName("RSACME"))
+		assert.Equal(t, value.V("RS-ACME"), rpsl.RSName("RSACME"))
 	})
 	t.Run("no prefix", func(t *testing.T) {
 		t.Parallel()
-		testza.AssertEqual(t, value.V("RS-ACME"), rpsl.RSName("ACME"))
+		assert.Equal(t, value.V("RS-ACME"), rpsl.RSName("ACME"))
 	})
 }

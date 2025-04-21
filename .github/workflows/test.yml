@@ -17,9 +17,17 @@ jobs:
               uses: actions/setup-go@v5
               with:
                   go-version: "1.24.x"
+            - name: Install Task
+              uses: arduino/setup-task@v2
+              with:
+                  version: 3.x
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Run Tests
-              run: go test -v ./... -coverprofile cover.out
+              run: task test
+
+            - name: Run Coverage
+              run: task coverage
 
             - name: Codecov
               uses: codecov/codecov-action@v5

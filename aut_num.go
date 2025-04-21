@@ -1,6 +1,9 @@
 package rpsl
 
 import (
+	"bytes"
+	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -15,6 +18,19 @@ type ASN uint32
 func (a ASN) String() string {
 	n := strconv.FormatUint(uint64(a), 10)
 	return "AS" + n
+}
+
+// UnmarshalBinary parses a byte string to an ASN type.
+func (a ASN) UnmarshalBinary(b []byte) (ASN, error) {
+	if bytes.HasPrefix(b, []byte{0x41, 0x53}) {
+		b = b[2:]
+	}
+	u, err := strconv.ParseUint(string(b), 10, 64)
+	if err != nil {
+		err := errors.Join(fmt.Errorf("value '%s' could not be parsed as uint32", string(b)), err)
+		return 0, err
+	}
+	return ASN(u), nil
 }
 
 // ASName creates an ASN object name from an ASN uint32 number, e.g. AS65000.

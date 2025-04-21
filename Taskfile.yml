@@ -1,0 +1,13 @@
+version: '3'
+tasks:
+  test:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - 'set -o pipefail'
+      - 'go test ./... {{.CLI_ARGS}} -json -cover | go tool tparse -all'
+  coverage:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - 'go test ./... {{.CLI_ARGS}} -json | go tool tparse -all'
+      - 'go test ./... -coverprofile=cover.out'
+      - 'go tool cover -html=cover.out'
