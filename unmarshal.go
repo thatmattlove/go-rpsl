@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// UnmarshalBinary marshals a byte string of RPSL data to a Go RPSL object.
+// UnmarshalBinary decodes a byte string of RPSL data to a Go RPSL object.
 // The second argument must be a pointer to an RPSL struct.
 //
 // Example:
