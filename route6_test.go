@@ -21,7 +21,7 @@ func TestRoute6_RPSL(t *testing.T) {
 	t.Run("base", func(t *testing.T) {
 		result, err := rpsl.MarshalBinary(&r)
 		require.NoError(t, err)
-		exp := []byte(`route: 2001:db8::/32
+		exp := []byte(`route6: 2001:db8::/32
 origin: AS65000
 descr: test
 admin-c: TEST-ADMIN
@@ -37,7 +37,7 @@ mnt-by: MNT-TEST`)
 		r.AddExtra("extra", "value")
 		assert.NotNil(t, r.Extra)
 		assert.Equal(t, "value", r.Extra["extra"])
-		exp := []byte(`route: 2001:db8::/32
+		exp := []byte(`route6: 2001:db8::/32
 origin: AS65000
 descr: test
 admin-c: TEST-ADMIN
@@ -54,7 +54,7 @@ source: ARIN`)
 City, ST
 12345
 US`
-		exp := []byte(`route: 2001:db8::/32
+		exp := []byte(`route6: 2001:db8::/32
 origin: AS65000
 descr: 123 Name Street
 descr: City, ST

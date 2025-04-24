@@ -6,7 +6,7 @@ package rpsl
 type Route6 struct {
 	// IPv6 address prefix. It is assumed that this value is a valid IPv6 prefix; no validation occurs.
 	//    *Required
-	Route6 string `rpsl:"route"`
+	Route6 string `rpsl:"route6"`
 	// The ASN from which the route originates.
 	//    *Required
 	Origin ASN `rpsl:"origin"`
