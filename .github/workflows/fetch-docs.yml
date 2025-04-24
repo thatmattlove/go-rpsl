@@ -1,0 +1,13 @@
+name: fetch-docs
+
+on:
+    push:
+        tags: ["*"]
+
+jobs:
+    fetch-docs:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Send GoDoc Fetch
+              run: |
+                  curl -X POST https://pkg.go.dev/fetch/go.mdl.wtf/rpsl@${{ github.ref_name }} || true
