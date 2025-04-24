@@ -10,7 +10,7 @@ import (
 
 func TestRoute_RPSL(t *testing.T) {
 	t.Parallel()
-	r := &rpsl.Route{
+	r := rpsl.Route{
 		Route:       "192.0.2.0/24",
 		Origin:      65000,
 		Description: "test",
@@ -19,14 +19,14 @@ func TestRoute_RPSL(t *testing.T) {
 		MntBy:       "MNT-TEST",
 	}
 	t.Run("base", func(t *testing.T) {
-		result, err := r.RPSL()
+		result, err := rpsl.MarshalBinary(&r)
 		require.NoError(t, err)
-		exp := `route: 192.0.2.0/24
+		exp := []byte(`route: 192.0.2.0/24
 origin: AS65000
 descr: test
 admin-c: TEST-ADMIN
 tech-c: TEST-TECH
-mnt-by: MNT-TEST`
+mnt-by: MNT-TEST`)
 		assert.Equal(t, exp, result)
 	})
 	t.Run("string", func(t *testing.T) {
@@ -37,15 +37,15 @@ mnt-by: MNT-TEST`
 		r.AddExtra("extra", "value")
 		assert.NotNil(t, r.Extra)
 		assert.Equal(t, "value", r.Extra["extra"])
-		exp := `route: 192.0.2.0/24
+		exp := []byte(`route: 192.0.2.0/24
 origin: AS65000
 descr: test
 admin-c: TEST-ADMIN
 tech-c: TEST-TECH
 mnt-by: MNT-TEST
 extra: value
-source: ARIN`
-		result, err := r.RPSL()
+source: ARIN`)
+		result, err := rpsl.MarshalBinary(&r)
 		require.NoError(t, err)
 		assert.Equal(t, exp, result)
 	})
@@ -54,7 +54,7 @@ source: ARIN`
 City, ST
 12345
 US`
-		exp := `route: 192.0.2.0/24
+		exp := []byte(`route: 192.0.2.0/24
 origin: AS65000
 descr: 123 Name Street
 descr: City, ST
@@ -64,8 +64,8 @@ admin-c: TEST-ADMIN
 tech-c: TEST-TECH
 mnt-by: MNT-TEST
 extra: value
-source: ARIN`
-		result, err := r.RPSL()
+source: ARIN`)
+		result, err := rpsl.MarshalBinary(&r)
 		require.NoError(t, err)
 		assert.Equal(t, exp, result)
 	})

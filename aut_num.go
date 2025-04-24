@@ -5,10 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
-
-	"go.mdl.wtf/rpsl/internal/serialize"
-	"go.mdl.wtf/rpsl/internal/value"
 )
 
 // ASN is an autonomous system number, 2-byte or 4-byte.
@@ -34,13 +30,13 @@ func (a ASN) UnmarshalBinary(b []byte) (ASN, error) {
 }
 
 // ASName creates an ASN object name from an ASN uint32 number, e.g. AS65000.
-func ASNName(a uint32) value.V {
-	return value.V(ASN(a).String())
+func ASNName(a uint32) string {
+	return ASN(a).String()
 }
 
-// AutNumMember creates an aut-num member object from its string representation.
-func AutNumMember(a string) value.V {
-	return value.V(strings.ToUpper(a))
+// AutNumMembersOf creates a list of aut-num member-of objects for use by [rpsl.AutNum].
+func AutNumMembersOf(vals ...any) []string {
+	return ASSetMembers(vals)
 }
 
 // AutNum is an RPSL 'aut-num class' object. Routing policies are specified using the aut-num class.
@@ -55,7 +51,7 @@ type AutNum struct {
 	//    *Required
 	ASName string `rpsl:"as-name"`
 	// Description for the aut-num object.
-	Description Description `rpsl:"descr,omitempty"`
+	Description string `rpsl:"descr,omitempty" as:"multiline"`
 	// Admin Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
 	AdminPOC string `rpsl:"admin-c,omitempty"`
@@ -76,14 +72,14 @@ type AutNum struct {
 	MPExport string `rpsl:"mp-export,omitempty"`
 	// MemberOf can be a list of other aut-num objects or as-set objects of which this aut-num
 	// object is a member.
-	MemberOf value.VCommaSpace `rpsl:"member-of,omitempty"`
+	MemberOf []string `rpsl:"member-of,omitempty" as:"comma-space"`
 	// MembersByRef is a list of maintainer names or the keyword ANY. If this attribute is used,
 	// the AS set also includes ASes whose aut-num objects are registered by one of these
 	// maintainers and whose member-of attribute refers to the name of this AS set. If the value
 	// of a mbrs-by-ref attribute is ANY, any AS object referring to the AS set is a member of the
 	// set.  If the mbrs-by-ref attribute is missing, only the ASes listed in the members attribute
 	// are members of the set.
-	MembersByRef value.VCommaSpace `rpsl:"mbrs-by-ref,omitempty"`
+	MembersByRef []string `rpsl:"mbrs-by-ref,omitempty" as:"comma-space"`
 	// Default routing policies. See RFC 2622 section 6.5.
 	Default string `rpsl:"default,omitempty"`
 	// Multi-protocol default routing policies. See RFC 4012 section 2.5.
@@ -105,9 +101,4 @@ func (a *AutNum) AddExtra(key, value string) {
 // String representation of the aut-num in RPSL format. E.g. AS65000.
 func (a *AutNum) String() string {
 	return a.AutNum.String()
-}
-
-// RPSL represents the aut-num object in RPSL format.
-func (a *AutNum) RPSL() (string, error) {
-	return serialize.RPSL(a)
 }

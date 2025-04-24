@@ -1,9 +1,5 @@
 package rpsl
 
-import (
-	"go.mdl.wtf/rpsl/internal/serialize"
-)
-
 // Route is an RPSL 'route class' object. Each interAS route (also referred to as an interdomain
 // route) originated by an AS is specified using a route object.
 type Route struct {
@@ -14,7 +10,7 @@ type Route struct {
 	//    *Required
 	Origin ASN `rpsl:"origin"`
 	// Description for the route object.
-	Description Description `rpsl:"descr,omitempty"`
+	Description string `rpsl:"descr,omitempty" as:"multiline"`
 	// Admin Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
 	AdminPOC string `rpsl:"admin-c,omitempty"`
@@ -42,9 +38,4 @@ func (r *Route) AddExtra(key, value string) {
 // String representation of the route in RPSL format. E.g. 192.0.2.0/24.
 func (r *Route) String() string {
 	return r.Route
-}
-
-// RPSL represents the route object in RPSL format.
-func (r *Route) RPSL() (string, error) {
-	return serialize.RPSL(r)
 }

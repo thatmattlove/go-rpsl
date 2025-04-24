@@ -2,22 +2,68 @@ package rpsl
 
 import (
 	"regexp"
-
-	"go.mdl.wtf/rpsl/internal/serialize"
-	"go.mdl.wtf/rpsl/internal/value"
 )
 
 var startsWithASDash = regexp.MustCompile(`^[AaSs]{2}\-.*$`)
-var startsWithAS = regexp.MustCompile(`^[AaSs]{2}.*$`)
+var startsWithAS = regexp.MustCompile(`^[AaSs]{2}\d+$`)
+var bareAS = regexp.MustCompile(`^\d+$`)
 
 // ASSetName creates an as-set member type, e.g. AS-ACME or AS65000.
-func ASSetName(name string) value.V {
+func ASSetName(name string) string {
 	if startsWithASDash.MatchString(name) {
 		name = name[3:]
 	} else if startsWithAS.MatchString(name) {
 		name = name[2:]
 	}
-	return value.V("AS-" + name)
+	return "AS-" + name
+}
+
+// ASSetMembers creates a list of as-set members for use by [rpsl.ASSet].
+func ASSetMembers(vals ...any) []string {
+	out := make([]string, 0, len(vals))
+	for _, v := range vals {
+		switch t := v.(type) {
+		case string:
+			if startsWithASDash.MatchString(t) || startsWithAS.MatchString(t) {
+				out = append(out, t)
+				continue
+			}
+			if bareAS.MatchString(t) {
+				out = append(out, "AS"+t)
+				continue
+			}
+		case int:
+			out = append(out, ASN(t).String())
+			continue
+		case uint32:
+			out = append(out, ASN(t).String())
+			continue
+		case ASN:
+			out = append(out, t.String())
+			continue
+		case []string:
+			for _, tv := range t {
+				out = append(out, ASSetMembers(tv)...)
+			}
+			continue
+		case []uint32:
+			for _, tv := range t {
+				out = append(out, ASSetMembers(tv)...)
+			}
+			continue
+		case []ASN:
+			for _, tv := range t {
+				out = append(out, ASSetMembers(tv)...)
+			}
+			continue
+		case []any:
+			for _, tv := range t {
+				out = append(out, ASSetMembers(tv)...)
+			}
+			continue
+		}
+	}
+	return out
 }
 
 // ASSet is an RPSL 'as-set class' object. An as-set defines a set of ASNs, aut-num objects, or
@@ -27,7 +73,7 @@ type ASSet struct {
 	//    *Required
 	ASSet string `rpsl:"as-set"`
 	// Description for the as-set object.
-	Description Description `rpsl:"descr,omitempty"`
+	Description string `rpsl:"descr,omitempty" as:"multiline"`
 	// Admin Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
 	AdminPOC string `rpsl:"admin-c,omitempty"`
@@ -43,7 +89,7 @@ type ASSet struct {
 	// Members of the set; ASNs, aut-num object names, or other as-set names are accepted.
 	//
 	// Use rpsl.ASSetMembers, rpsl.ASNName, and rpsl.ASSetName functions to ensure proper formatting.
-	Members value.VNewline `rpsl:"members,omitempty"`
+	Members []string `rpsl:"members,omitempty" as:"multiline"`
 	// Private container for extra attributes
 	Extra map[string]string `rpsl:"-"`
 	// Registry Source. Most registries require this field.
@@ -60,10 +106,5 @@ func (a *ASSet) AddExtra(key, value string) {
 
 // String representation of the as-set in RPSL format. E.g. AS-ACME.
 func (a *ASSet) String() string {
-	return string(ASSetName(a.ASSet))
-}
-
-// RPSL represents the as-set object in RPSL format.
-func (a *ASSet) RPSL() (string, error) {
-	return serialize.RPSL(a)
+	return ASSetName(a.ASSet)
 }

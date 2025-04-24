@@ -39,22 +39,29 @@ func Test_ASN(t *testing.T) {
 	})
 }
 
+func Test_ASNName(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, "AS65000", rpsl.ASNName(65000))
+}
+
+func Test_AutNumMembersOf(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, []string{"AS65000", "AS65001", "AS-SET"}, rpsl.AutNumMembersOf([]any{65000, "AS65001", "AS-SET"}))
+}
+
 func Test_AutNum(t *testing.T) {
 	t.Parallel()
-	autNum := &rpsl.AutNum{
-		AutNum: rpsl.ASN(65000),
-		ASName: "AS-65000",
-		MemberOf: rpsl.AutNumMembers(
-			rpsl.ASNName(65001),
-			rpsl.AutNumMember("AS65002"),
-			rpsl.ASSetName("AS-ACME"),
-		)}
+	autNum := rpsl.AutNum{
+		AutNum:   rpsl.ASN(65000),
+		ASName:   "AS-65000",
+		MemberOf: []string{"AS65001", "AS65002", "AS-ACME"},
+	}
 	t.Run("base", func(t *testing.T) {
-		result, err := autNum.RPSL()
+		result, err := rpsl.MarshalBinary(&autNum)
 		require.NoError(t, err)
-		exp := `aut-num: AS65000
+		exp := []byte(`aut-num: AS65000
 as-name: AS-65000
-member-of: AS65001, AS65002, AS-ACME`
+member-of: AS65001, AS65002, AS-ACME`)
 		assert.Equal(t, exp, result)
 	})
 	t.Run("string", func(t *testing.T) {
@@ -65,32 +72,32 @@ member-of: AS65001, AS65002, AS-ACME`
 		autNum.AddExtra("extra", "value")
 		require.NotNil(t, autNum.Extra)
 		assert.Equal(t, "value", autNum.Extra["extra"])
-		exp := `aut-num: AS65000
+		exp := []byte(`aut-num: AS65000
 as-name: AS-65000
 member-of: AS65001, AS65002, AS-ACME
 extra: value
-source: ARIN`
-		result, err := autNum.RPSL()
+source: ARIN`)
+		result, err := rpsl.MarshalBinary(&autNum)
 		require.NoError(t, err)
 		assert.Equal(t, exp, result)
 	})
 	t.Run("with descr", func(t *testing.T) {
 		t.Parallel()
-		autNum := &rpsl.AutNum{
+		autNum := rpsl.AutNum{
 			AutNum: rpsl.ASN(65000),
 			ASName: "AS-65000",
 			Source: "ARIN",
 			Description: `this is
 a description`,
-			MemberOf: rpsl.AutNumMembers(rpsl.ASNName(65001)),
+			MemberOf: []string{"AS65001"},
 		}
-		exp := `aut-num: AS65000
+		exp := []byte(`aut-num: AS65000
 as-name: AS-65000
 descr: this is
 descr: a description
 member-of: AS65001
-source: ARIN`
-		result, err := autNum.RPSL()
+source: ARIN`)
+		result, err := rpsl.MarshalBinary(&autNum)
 		require.NoError(t, err)
 		assert.Equal(t, exp, result)
 	})

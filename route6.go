@@ -1,7 +1,5 @@
 package rpsl
 
-import "go.mdl.wtf/rpsl/internal/serialize"
-
 // Route6 is an RPSL 'route6 class' object. The route6 class is the IPv6 equivalent of the route
 // class. Each interAS route (also referred to as an interdomain route) originated by an AS is
 // specified using a route object.
@@ -13,7 +11,7 @@ type Route6 struct {
 	//    *Required
 	Origin ASN `rpsl:"origin"`
 	// Description for the route6 object.
-	Description Description `rpsl:"descr,omitempty"`
+	Description string `rpsl:"descr,omitempty" as:"multiline"`
 	// Admin Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
 	AdminPOC string `rpsl:"admin-c,omitempty"`
@@ -41,9 +39,4 @@ func (r *Route6) AddExtra(key, value string) {
 // String representation of the route6 in RPSL format. E.g. 2001:db8::/32.
 func (r *Route6) String() string {
 	return r.Route6
-}
-
-// RPSL represents the route6 object in RPSL format.
-func (r *Route6) RPSL() (string, error) {
-	return serialize.RPSL(r)
 }

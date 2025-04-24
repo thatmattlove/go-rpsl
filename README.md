@@ -37,8 +37,8 @@ route := &rpsl.Route{
     TechPOC:     "TEST-TECH",
     MntBy:       "MNT-TEST",
 }
-formatted, _ := route.RPSL()
-fmt.Println(formatted)
+formatted, _ := rpsl.MarshalBinary(&route)
+fmt.Println(string(formatted))
 /*
 route: 192.0.2.0/24
 origin: AS65000
@@ -60,8 +60,8 @@ route := &rpsl.Route6{
     TechPOC:     "TEST-TECH",
     MntBy:       "MNT-TEST",
 }
-formatted, _ := route.RPSL()
-fmt.Println(formatted)
+formatted, _ := rpsl.MarshalBinary(&route)
+fmt.Println(string(formatted))
 /*
 route6: 2001:db8::/32
 origin: AS65000
@@ -77,13 +77,11 @@ mnt-by: MNT-TEST
 ```go
 route_set := &rpsl.RouteSet{
     RouteSet: "RS-ACME",
-    Members:  rpsl.RSMembers(
-        rpsl.RSMember("192.0.2.0/24"),
-        rpsl.RSMember("RS-CORP"),
-    ),
+    Members:  rpsl.RSMembers(netip.MustParsePrefix("192.0.2.0/24"), "RS-ACME"), // with mixed types
+    Members:  []string{"192.0.2.0/24", "RS-ACME"}, // or just a string slice
 }
-formatted, _ := route_set.RPSL()
-fmt.Println(formatted)
+formatted, _ := rpsl.MarshalBinary(&route_set)
+fmt.Println(string(formatted))
 /*
 route-set: RS-ACME
 members: 192.0.2.0/24,RS-CORP
@@ -96,14 +94,15 @@ members: 192.0.2.0/24,RS-CORP
 aut_num := &rpsl.AutNum{
     AutNum: rpsl.ASN(65000),
     ASName: "AS-65000",
-    MemberOf: rpsl.AutNumMembers(
-        rpsl.ASNName(65001), // base ASN
-        rpsl.AutNumMember("AS65002"), // existing aut-num object
-        rpsl.ASSetName("AS-ACME"), // existing as-set object
+    MemberOf: rpsl.AutNumMembers( // with mixed types
+        rpsl.ASN(65001), // rpsl.ASN type
+        65002, // uint32
+        "AS-ACME", // as-set as string
     ),
+    MemberOf: []string{"65001", "AS65002", "AS-ACME"}, // or just a string slice
 }
-formatted, _ := aut_num.RPSL()
-fmt.Println(formatted)
+formatted, _ := rpsl.MarshalBinary(&aut_num)
+fmt.Println(string(formatted))
 /*
 aut-num: AS65000
 as-name: AS-65000
@@ -116,19 +115,44 @@ member-of: AS65001, AS65002, AS-ACME
 ```go
 as_set := &rpsl.ASSet{
     ASSet:   "AS-ACME",
-    Members: rpsl.ASSetMembers(
-        rpsl.ASNName(65000),
-        rpsl.ASSetName("AS-65001"),
+    Members: rpsl.ASSetMembers( // with mixed types
+        rpsl.ASN(65000), // rpsl.ASN type
+        65001, // uint32
+        "AS-CORP", // AS-Set name
     ),
+    Members: []string{"65000", "AS65001", "AS-CORP"}, // or just a string slice
 }
-formatted, _ := as_set.RPSL()
+formatted, _ := rpsl.MarshalBinary(&as_set)
+fmt.Println(string(formatted))
 /*
 as-set: AS-ACME
 members: AS65000
-members: AS-65001
+members: AS65001
+members: AS-CORP
 */
 
 // ↑ AS-Sets list members as separate lines, this is handled appropriately.
+```
+
+### Decode
+
+`rpsl` can also decode an RPSL blob:
+
+```go
+b := []byte(`
+route: 192.0.2.0/24
+origin: AS65000
+some-unknown-attribute: ur a n3rd
+`)
+
+var route rpsl.Route
+_ := rpsl.UnmarshalBinary(b, &route)
+fmt.Println(route.Route)
+// 192.0.2.0/24
+fmt.Println(route.Origin.String())
+// AS65000
+fmt.Println(route.Extra["some-unknown-attribute"]) // ← unknown attributes are placed into a map[string]string accessible via .Extra
+// ur a n3rd
 ```
 
 ![License](https://img.shields.io/github/license/thatmattlove/go-rpsl?color=000&style=for-the-badge)

@@ -1,24 +1,24 @@
 package rpsl_test
 
 import (
+	"net/netip"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mdl.wtf/rpsl"
-	"go.mdl.wtf/rpsl/internal/value"
 )
 
 func Test_RouteSet(t *testing.T) {
 	t.Parallel()
-	rs := &rpsl.RouteSet{
+	rs := rpsl.RouteSet{
 		RouteSet: "RS-ACME",
-		Members:  rpsl.RSMembers(rpsl.RSMember("192.0.2.0/24"), rpsl.RSMember("RS-CORP")),
+		Members:  []string{"192.0.2.0/24", "RS-CORP"},
 	}
 	t.Run("base", func(t *testing.T) {
-		exp := `route-set: RS-ACME
-members: 192.0.2.0/24,RS-CORP`
-		result, err := rs.RPSL()
+		exp := []byte(`route-set: RS-ACME
+members: 192.0.2.0/24,RS-CORP`)
+		result, err := rpsl.MarshalBinary(&rs)
 		require.NoError(t, err)
 		assert.Equal(t, exp, result)
 	})
@@ -29,30 +29,30 @@ members: 192.0.2.0/24,RS-CORP`
 		rs.AddExtra("extra", "value")
 		assert.NotNil(t, rs.Extra)
 		assert.Equal(t, "value", rs.Extra["extra"])
-		exp := `route-set: RS-ACME
+		exp := []byte(`route-set: RS-ACME
 members: 192.0.2.0/24,RS-CORP
-extra: value`
-		result, err := rs.RPSL()
+extra: value`)
+		result, err := rpsl.MarshalBinary(&rs)
 		require.NoError(t, err)
 		assert.Equal(t, exp, result)
 	})
 	t.Run("with descr", func(t *testing.T) {
 		t.Parallel()
-		rs := &rpsl.RouteSet{
+		rs := rpsl.RouteSet{
 			RouteSet: "RS-ACME",
 			Description: `123 Name Street
 City, ST
 12345
 US`,
-			Members: rpsl.RSMembers(rpsl.RSMember("192.0.2.0/24")),
+			Members: []string{"192.0.2.0/24"},
 		}
-		exp := `route-set: RS-ACME
+		exp := []byte(`route-set: RS-ACME
 descr: 123 Name Street
 descr: City, ST
 descr: 12345
 descr: US
-members: 192.0.2.0/24`
-		result, err := rs.RPSL()
+members: 192.0.2.0/24`)
+		result, err := rpsl.MarshalBinary(&rs)
 		require.NoError(t, err)
 		assert.Equal(t, exp, result)
 	})
@@ -61,14 +61,19 @@ members: 192.0.2.0/24`
 func Test_RSSetName(t *testing.T) {
 	t.Run("dash", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, value.V("RS-ACME"), rpsl.RSName("RS-ACME"))
+		assert.Equal(t, "RS-ACME", rpsl.RSName("RS-ACME"))
 	})
 	t.Run("no dash", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, value.V("RS-ACME"), rpsl.RSName("RSACME"))
+		assert.Equal(t, "RS-ACME", rpsl.RSName("RSACME"))
 	})
 	t.Run("no prefix", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, value.V("RS-ACME"), rpsl.RSName("ACME"))
+		assert.Equal(t, "RS-ACME", rpsl.RSName("ACME"))
 	})
+}
+
+func Test_RSMembers(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, []string{"192.0.2.0/24", "RS-SET"}, rpsl.RSMembers(netip.MustParsePrefix("192.0.2.0/24"), "RS-SET"))
 }
