@@ -93,10 +93,17 @@ func Test_ASSetName(t *testing.T) {
 		assert.Equal(t, "AS65000:AS-ACME:AS-CORP", rpsl.ASSetName("AS65000:AS-ACME:AS-CORP"))
 		assert.Equal(t, "AS-ACME:FOO", rpsl.ASSetName("AS-ACME:FOO"))
 		assert.Equal(t, "AS65000:RS-FOO", rpsl.ASSetName("AS65000:RS-FOO"))
+		assert.Equal(t, "RS-FOO:AS-BAR", rpsl.ASSetName("RS-FOO:AS-BAR"))
 	})
-	t.Run("hierarchical without set name", func(t *testing.T) {
+	t.Run("hierarchical without leading ASN or set name", func(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, "AS-FOO:AS65000", rpsl.ASSetName("FOO:AS65000"))
+		assert.Equal(t, "AS-FOO:AS-BAR", rpsl.ASSetName("FOO:AS-BAR"))
+	})
+	t.Run("whitespace", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "AS-FOO", rpsl.ASSetName(" AS-FOO"))
+		assert.Equal(t, "AS65000:AS-FOO", rpsl.ASSetName("AS65000:AS-FOO "))
 	})
 }
 
