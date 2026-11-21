@@ -366,6 +366,35 @@ descr: Line 2`)
 		require.NoError(t, err)
 		assert.Equal(t, "Line 1 continued\nLine 2", autNum.Description)
 	})
+	t.Run("indented object", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`
+		% comment
+		aut-num: AS65000
+		as-name: AS-ACME-1
+		import: from AS65001
+		  accept ANY
+		mp-import: afi ipv6.unicast
+		+ from AS65002 accept ANY
+		descr: Line 1
+		`)
+		exp := []byte(`aut-num: AS65000
+as-name: AS-ACME-1
+import: from AS65001
+  accept ANY
+mp-import: afi ipv6.unicast
++ from AS65002 accept ANY
+descr: Line 1`)
+		var autNum, expAutNum rpsl.AutNum
+		err := serialize.Decode(b, &autNum)
+		require.NoError(t, err)
+		err = serialize.Decode(exp, &expAutNum)
+		require.NoError(t, err)
+		assert.Equal(t, expAutNum, autNum)
+		assert.Equal(t, rpsl.ASN(65000), autNum.AutNum)
+		assert.Equal(t, "from AS65001 accept ANY", autNum.Import)
+		assert.Equal(t, "afi ipv6.unicast from AS65002 accept ANY", autNum.MPImport)
+	})
 	t.Run("skip continuation without attribute", func(t *testing.T) {
 		t.Parallel()
 		b := []byte(`  orphan: value

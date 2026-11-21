@@ -71,6 +71,16 @@ func Decode(b []byte, o any) error {
 	b = bytes.Trim(b, "\n")
 	// Separate full blob by lines.
 	blines := bytes.Split(b, []byte{0xa})
+	// Remove the first line's indentation if all lines share it.
+	indent := blines[0][:len(blines[0])-len(bytes.TrimLeft(blines[0], " \t"))]
+	for _, line := range blines {
+		if len(bytes.TrimSpace(line)) > 0 && !bytes.HasPrefix(line, indent) {
+			indent = nil
+		}
+	}
+	for i := range blines {
+		blines[i] = bytes.TrimPrefix(blines[i], indent)
+	}
 
 	// Create a slice of key/value pairs.
 	pairs := make([][][]byte, 0, len(blines))
