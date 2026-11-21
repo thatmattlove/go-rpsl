@@ -71,6 +71,7 @@ func Test_ASNName(t *testing.T) {
 func Test_AutNumMembersOf(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, []string{"AS65000", "AS65001", "AS-SET"}, rpsl.AutNumMembersOf([]any{65000, "AS65001", "AS-SET"}))
+	assert.Equal(t, []string{"AS-SET"}, rpsl.AutNumMembersOf("FOO", "AS-SET"))
 }
 
 func Test_AutNum(t *testing.T) {

@@ -3,6 +3,8 @@ package rpsl
 import (
 	"math"
 	"regexp"
+	"strconv"
+	"strings"
 )
 
 var startsWithASDash = regexp.MustCompile(`(?i)^AS-`)
@@ -25,16 +27,24 @@ func ASSetName(name string) string {
 }
 
 // ASSetMembers creates a list of as-set members for use by [rpsl.ASSet]. Bare numbers are
-// prefixed with AS; other strings are kept as-is. Integers outside the uint32 range are dropped.
+// prefixed with AS. ASNs outside the uint32 range and strings that are not ASNs or as-set names
+// are dropped.
 func ASSetMembers(vals ...any) []string {
 	out := make([]string, 0, len(vals))
 	for _, v := range vals {
 		switch t := v.(type) {
 		case string:
+			t = strings.TrimSpace(t)
 			if bareAS.MatchString(t) {
 				t = "AS" + t
 			}
-			if t != "" {
+			if startsWithAS.MatchString(t) {
+				if _, err := strconv.ParseUint(t[2:], 10, 32); err == nil {
+					out = append(out, t)
+				}
+				continue
+			}
+			if startsWithASDash.MatchString(t) || hierarchicalASSet.MatchString(t) {
 				out = append(out, t)
 			}
 			continue
