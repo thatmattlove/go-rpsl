@@ -86,12 +86,13 @@ func Decode(b []byte, o any) error {
 	// Create a slice of key/value pairs.
 	pairs := make([][][]byte, 0, len(blines))
 	for i := range blines {
-		if len(blines[i]) == 0 {
+		trimmed := bytes.TrimLeft(blines[i], " \t")
+		if len(trimmed) == 0 {
 			continue
 		}
 		switch c := blines[i][0]; {
-		case c == 0x25 || c == 0x23:
-			// Skip comment lines.
+		case trimmed[0] == 0x25 || trimmed[0] == 0x23:
+			// Skip comment lines at any indentation.
 			continue
 		case c == 0x2b || (c == 0x20 || c == 0x9) && len(pairs) > 0:
 			// Append continuation line to the previous pair's values, joined with a single space.

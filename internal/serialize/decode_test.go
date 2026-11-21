@@ -491,6 +491,27 @@ import: from AS65001
 		assert.NotContains(t, autNum.Extra, "% Note")
 		assert.NotContains(t, autNum.Extra, "# comment")
 	})
+	t.Run("skip indented comment lines", func(t *testing.T) {
+		t.Parallel()
+		for _, b := range [][]byte{
+			[]byte("route: 192.0.2.0/24\n  % comment\norigin: AS65000\nsource: X"),
+			[]byte("route: 192.0.2.0/24\norigin: AS65000\n  % comment\nsource: X"),
+			[]byte("route: 192.0.2.0/24\norigin: AS65000\n\t# comment\nsource: X"),
+			[]byte("% banner: a\n    % comment: b\n  route: 192.0.2.0/24\n  origin: AS65000\n  source: X"),
+		} {
+			var route rpsl.Route
+			err := serialize.Decode(b, &route)
+			require.NoError(t, err)
+			assert.Equal(t, "192.0.2.0/24", route.Route)
+			assert.Equal(t, rpsl.ASN(65000), route.Origin)
+			assert.Equal(t, "X", route.Source)
+			assert.Empty(t, route.Extra)
+		}
+		var route rpsl.Route
+		err := serialize.Decode([]byte("route: 192.0.2.0/24\ndescr: a\n+ # b\n  # comment"), &route)
+		require.NoError(t, err)
+		assert.Equal(t, "a # b", route.Description)
+	})
 	t.Run("skip empty tag", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {
