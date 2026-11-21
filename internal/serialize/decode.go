@@ -185,7 +185,7 @@ func Decode(b []byte, o any) error {
 					// If the value is a (supported) native type, handle accordingly:
 					switch valueField.Kind() {
 					case reflect.String:
-						valueField.SetString(string(value))
+						valueField.SetString(string(parsed))
 						continue
 					case reflect.Uint32:
 						u, err := strconv.ParseUint(string(parsed), 10, 32)

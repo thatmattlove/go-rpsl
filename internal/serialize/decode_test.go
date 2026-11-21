@@ -156,6 +156,21 @@ uint32: 12345 # comment`)
 		assert.Equal(t, rpsl.ASN(65000), s.Origin)
 		assert.Equal(t, uint32(12345), s.Uint32)
 	})
+	t.Run("with comments plain strings", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`route: 192.0.2.0/24 # comment
+origin: AS65000
+descr: Line 1 # kept verbatim
+remarks: Line 2 # kept verbatim
+source: RIPE # Filtered`)
+		var route rpsl.Route
+		err := serialize.Decode(b, &route)
+		require.NoError(t, err)
+		assert.Equal(t, "192.0.2.0/24", route.Route)
+		assert.Equal(t, "RIPE", route.Source)
+		assert.Equal(t, "Line 1 # kept verbatim", route.Description)
+		assert.Equal(t, map[string]string{"remarks": "Line 2 # kept verbatim"}, route.Extra)
+	})
 	t.Run("with comments continuation lines", func(t *testing.T) {
 		t.Parallel()
 		b := []byte("route-set: RS-ACME\n" +
