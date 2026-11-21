@@ -251,6 +251,17 @@ extra1: value2`)
 		require.NoError(t, err)
 		assert.Equal(t, map[string]string{"extra1": "value1\nvalue2"}, asSet.Extra)
 	})
+	t.Run("with repeated extra mixed case", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`as-set: AS-ACME
+Extra1: value1
+extra1: value2
+EXTRA1: value3`)
+		var asSet rpsl.ASSet
+		err := serialize.Decode(b, &asSet)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"Extra1": "value1\nvalue2\nvalue3"}, asSet.Extra)
+	})
 	t.Run("with repeated attributes", func(t *testing.T) {
 		t.Parallel()
 		b := []byte(`aut-num: AS65000

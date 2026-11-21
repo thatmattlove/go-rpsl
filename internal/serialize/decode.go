@@ -155,8 +155,16 @@ func Decode(b []byte, o any) error {
 				if HasField(rt, string(pair[0])) {
 					continue
 				}
+				// Attribute names are case-insensitive, reuse a key that only differs by case.
+				key := string(pair[0])
+				for k := range m {
+					if strings.EqualFold(k, key) {
+						key = k
+						break
+					}
+				}
 				// Join repeated attributes by newline.
-				m[string(pair[0])] = ProcessString(m[string(pair[0])], pair[1], "\n")
+				m[key] = ProcessString(m[key], pair[1], "\n")
 			}
 			continue
 		}
