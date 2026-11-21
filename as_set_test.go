@@ -29,6 +29,8 @@ members: AS-65001`)
 		t.Parallel()
 		asSet := rpsl.ASSet{ASSet: "AS65000:AS-ACME"}
 		assert.Equal(t, "AS65000:AS-ACME", asSet.String())
+		asSet = rpsl.ASSet{ASSet: "AS-ACME:FOO"}
+		assert.Equal(t, "AS-ACME:FOO", asSet.String())
 	})
 	t.Run("with extra", func(t *testing.T) {
 		asSet.AddExtra("extra", "value")
@@ -88,6 +90,8 @@ func Test_ASSetName(t *testing.T) {
 		assert.Equal(t, "AS65000:AS-ACME", rpsl.ASSetName("AS65000:AS-ACME"))
 		assert.Equal(t, "AS-ACME:AS65000", rpsl.ASSetName("AS-ACME:AS65000"))
 		assert.Equal(t, "AS65000:AS-ACME:AS-CORP", rpsl.ASSetName("AS65000:AS-ACME:AS-CORP"))
+		assert.Equal(t, "AS-ACME:FOO", rpsl.ASSetName("AS-ACME:FOO"))
+		assert.Equal(t, "AS65000:RS-FOO", rpsl.ASSetName("AS65000:RS-FOO"))
 	})
 }
 

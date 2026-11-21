@@ -2,16 +2,17 @@ package rpsl
 
 import (
 	"regexp"
+	"strings"
 )
 
-var asSetName = regexp.MustCompile(`(?i)^(AS\d+:)*AS-[^:]*(:(AS\d+|AS-[^:]*))*$`)
+var startsWithASDash = regexp.MustCompile(`(?i)^AS-`)
 var startsWithAS = regexp.MustCompile(`(?i)^AS\d+$`)
 var bareAS = regexp.MustCompile(`^\d+$`)
 
-// ASSetName creates an as-set member type, e.g. AS-ACME or AS65000:AS-ACME. Valid as-set names,
-// including hierarchical names, are returned unchanged.
+// ASSetName creates an as-set member type, e.g. AS-ACME or AS65000:AS-ACME. Names that already
+// begin with AS- and hierarchical names are returned unchanged.
 func ASSetName(name string) string {
-	if asSetName.MatchString(name) {
+	if startsWithASDash.MatchString(name) || strings.Contains(name, ":") {
 		return name
 	}
 	if startsWithAS.MatchString(name) {
