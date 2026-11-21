@@ -68,11 +68,20 @@ func Decode(b []byte, o any) error {
 	b = bytes.Trim(b, "\n")
 	// Separate full blob by lines.
 	blines := bytes.Split(b, []byte{0xa})
-	// Remove the first line's indentation if all lines share it.
-	indent := blines[0][:len(blines[0])-len(bytes.TrimLeft(blines[0], " \t"))]
+	// Remove the first attribute line's indentation if all attribute lines share it.
+	var indent []byte
+	found := false
 	for _, line := range blines {
-		if len(bytes.TrimSpace(line)) > 0 && !bytes.HasPrefix(line, indent) {
+		trimmed := bytes.TrimSpace(line)
+		// Skip blank and comment lines.
+		if len(trimmed) == 0 || trimmed[0] == 0x25 || trimmed[0] == 0x23 {
+			continue
+		}
+		if !found {
+			indent, found = line[:len(line)-len(bytes.TrimLeft(line, " \t"))], true
+		} else if !bytes.HasPrefix(line, indent) {
 			indent = nil
+			break
 		}
 	}
 	for i := range blines {

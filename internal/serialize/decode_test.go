@@ -401,6 +401,20 @@ descr: Line 1`)
 		assert.Equal(t, "from AS65001 accept ANY", autNum.Import)
 		assert.Equal(t, "afi ipv6.unicast from AS65002 accept ANY", autNum.MPImport)
 	})
+	t.Run("indented object leading lines", func(t *testing.T) {
+		t.Parallel()
+		for _, b := range [][]byte{
+			[]byte("% banner\n  route: 192.0.2.0/24\n  origin: AS65000"),
+			[]byte("\r\n  route: 192.0.2.0/24\r\n  origin: AS65000\r\n"),
+			[]byte(" \n  route: 192.0.2.0/24\n  origin: AS65000"),
+		} {
+			var route rpsl.Route
+			err := serialize.Decode(b, &route)
+			require.NoError(t, err)
+			assert.Equal(t, "192.0.2.0/24", route.Route)
+			assert.Equal(t, rpsl.ASN(65000), route.Origin)
+		}
+	})
 	t.Run("skip continuation without attribute", func(t *testing.T) {
 		t.Parallel()
 		b := []byte(`  orphan: value
