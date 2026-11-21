@@ -135,29 +135,31 @@ func Decode(b []byte, o any) error {
 
 		as, hasAs := field.Tag.Lookup("as")
 
+		// Add extra values to the 'Extra' field map, which is tagged as "-".
+		if keyName == "-" {
+			m := valueField.Interface().(map[string]string)
+			if m == nil {
+				// Initialize map so it is never nil after decoding.
+				m = make(map[string]string)
+				valueField.Set(reflect.ValueOf(m))
+			}
+			for _, pair := range pairs {
+				// Skip attributes that have a matching struct field.
+				if hasField(rt, string(pair[0])) {
+					continue
+				}
+				// Join repeated attributes by newline.
+				m[string(pair[0])] = ProcessString(m[string(pair[0])], pair[1], "\n")
+			}
+			continue
+		}
+
 		// Begin struct field to key/pair matching.
 		for _, pair := range pairs {
 			key := pair[0]    // left side of first ':', key
 			value := pair[1]  // right side of first ':', value
 			parsed := pair[2] // value without '#' comments
 
-			// Add extra values to the 'Extra' field map, which is tagged as "-".
-			if keyName == "-" {
-				// Skip attributes that have a matching struct field.
-				if hasField(rt, string(key)) {
-					continue
-				}
-				m := valueField.Interface().(map[string]string)
-				if m == nil {
-					// Initialize map if this is the first pass.
-					m = make(map[string]string)
-				}
-				// Join repeated attributes by newline.
-				m[string(key)] = ProcessString(m[string(key)], value, "\n")
-				// Reassign 'Extra' map.
-				valueField.Set(reflect.ValueOf(m))
-				continue
-			}
 			// Struct field matches this k/v pair. Attribute names are case-insensitive.
 			if strings.EqualFold(keyName, string(key)) {
 				if hasAs {
