@@ -24,14 +24,14 @@ func RSName(name string) string {
 	return "RS-" + name
 }
 
-// RSMembers creates a list of route-set members for use by [rpsl.RouteSet]. Empty strings and
-// invalid prefixes are dropped.
+// RSMembers creates a list of route-set members for use by [rpsl.RouteSet]. Strings are trimmed
+// of surrounding whitespace. Empty strings and invalid prefixes are dropped.
 func RSMembers(vals ...any) []string {
 	out := make([]string, 0, len(vals))
 	for _, v := range vals {
 		switch t := v.(type) {
 		case string:
-			if t != "" {
+			if t = strings.TrimSpace(t); t != "" {
 				out = append(out, t)
 			}
 		case netip.Prefix:

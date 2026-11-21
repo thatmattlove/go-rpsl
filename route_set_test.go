@@ -113,6 +113,8 @@ func Test_RSMembers(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, []string{"192.0.2.0/24", "RS-SET"}, rpsl.RSMembers(netip.MustParsePrefix("192.0.2.0/24"), "RS-SET"))
 	assert.Equal(t, []string{"RS-SET"}, rpsl.RSMembers(netip.Prefix{}, "", "RS-SET"))
+	assert.Equal(t, []string{"RS-B", "RS-C"}, rpsl.RSMembers(" ", " RS-B ", "RS-C"))
+	assert.Equal(t, []string{"RS-B"}, rpsl.RSMembers([]string{"\t", " RS-B\n"}))
 	p := netip.MustParsePrefix("192.0.2.0/24")
 	assert.Equal(t, []string{"192.0.2.0/24", "RS-A"}, rpsl.RSMembers([]string{"192.0.2.0/24", "RS-A"}))
 	assert.Equal(t, []string{"192.0.2.0/24"}, rpsl.RSMembers([]netip.Prefix{p}))
