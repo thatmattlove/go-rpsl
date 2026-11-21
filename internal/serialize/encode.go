@@ -3,6 +3,7 @@ package serialize
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"reflect"
 	"slices"
 	"strconv"
@@ -62,9 +63,11 @@ func Encode(s any) ([]byte, error) {
 			continue
 		}
 		if tag == "-" {
-			for k, v := range sval.(map[string]string) {
-				if k != "" && v != "" {
-					out += fmt.Sprintf("%s: %s\n", k, v)
+			extra := sval.(map[string]string)
+			// Sort keys so output is the same on every call.
+			for _, k := range slices.Sorted(maps.Keys(extra)) {
+				if k != "" && extra[k] != "" {
+					out += fmt.Sprintf("%s: %s\n", k, extra[k])
 				}
 			}
 			continue

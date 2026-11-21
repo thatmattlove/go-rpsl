@@ -97,6 +97,29 @@ key3: value3`)
 		require.NoError(t, err)
 		assert.Equal(t, exp, result)
 	})
+	t.Run("with extra sorted", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Key1  string            `rpsl:"key1"`
+			Extra map[string]string `rpsl:"-"`
+			Key2  string            `rpsl:"key2"`
+		}
+		s := &Struct{
+			Key1:  "value1",
+			Extra: map[string]string{"key5": "value5", "key3": "value3", "key4": "value4"},
+			Key2:  "value2",
+		}
+		exp := []byte(`key1: value1
+key3: value3
+key4: value4
+key5: value5
+key2: value2`)
+		for range 20 {
+			result, err := serialize.Encode(s)
+			require.NoError(t, err)
+			assert.Equal(t, exp, result)
+		}
+	})
 	t.Run("with as multiline string", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {
