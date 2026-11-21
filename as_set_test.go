@@ -93,6 +93,10 @@ func Test_ASSetName(t *testing.T) {
 		assert.Equal(t, "AS-ACME:FOO", rpsl.ASSetName("AS-ACME:FOO"))
 		assert.Equal(t, "AS65000:RS-FOO", rpsl.ASSetName("AS65000:RS-FOO"))
 	})
+	t.Run("hierarchical without set name", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "AS-FOO:AS65000", rpsl.ASSetName("FOO:AS65000"))
+	})
 }
 
 func Test_ASSetMembers(t *testing.T) {

@@ -8,11 +8,13 @@ import (
 
 var startsWithRSDash = regexp.MustCompile(`(?i)^RS-`)
 var startsWithRS = regexp.MustCompile(`(?i)^RS.*$`)
+var hierarchicalRS = regexp.MustCompile(`(?i)^AS\d+:|:RS-`)
 
 // RSName creates a route-set member type, e.g. RS-ACME or AS65000:RS-ACME. Names that already
-// begin with RS- and hierarchical names are returned unchanged.
+// begin with RS- and hierarchical names that begin with an ASN or contain an RS- component are
+// returned unchanged.
 func RSName(name string) string {
-	if startsWithRSDash.MatchString(name) || strings.Contains(name, ":") {
+	if startsWithRSDash.MatchString(name) || hierarchicalRS.MatchString(name) {
 		return name
 	}
 	if startsWithRS.MatchString(name) {

@@ -73,6 +73,7 @@ func Test_RSSetName(t *testing.T) {
 	t.Run("no dash", func(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, "RS-ACME", rpsl.RSName("RSACME"))
+		assert.Equal(t, "RS-VP", rpsl.RSName("RSVP"))
 	})
 	t.Run("no prefix", func(t *testing.T) {
 		t.Parallel()
@@ -94,6 +95,10 @@ func Test_RSSetName(t *testing.T) {
 		assert.Equal(t, "RS-FOO:AS-BAR", rpsl.RSName("RS-FOO:AS-BAR"))
 		assert.Equal(t, "AS-FOO:RS-BAR", rpsl.RSName("AS-FOO:RS-BAR"))
 		assert.Equal(t, "RS-FOO:", rpsl.RSName("RS-FOO:"))
+	})
+	t.Run("hierarchical without set name", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "RS-FOO:AS65000", rpsl.RSName("FOO:AS65000"))
 	})
 }
 
