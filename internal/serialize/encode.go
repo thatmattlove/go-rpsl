@@ -71,7 +71,10 @@ func Encode(s any) ([]byte, error) {
 			continue
 		}
 		if tag == "-" {
-			extra := sval.(map[string]string)
+			extra, ok := sval.(map[string]string)
+			if !ok {
+				return nil, fmt.Errorf("field '%s' has an invalid rpsl tag", field.Name)
+			}
 			// Sort keys so output is the same on every call.
 			for _, k := range slices.Sorted(maps.Keys(extra)) {
 				if k != "" && extra[k] != "" {

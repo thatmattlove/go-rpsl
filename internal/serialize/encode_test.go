@@ -86,6 +86,19 @@ key2: 65000`)
 		_, err := serialize.Encode(s)
 		assert.ErrorContains(t, err, "has an invalid")
 	})
+	t.Run("invalid extra", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Key1  string   `rpsl:"key1"`
+			Extra []string `rpsl:"-"`
+		}
+		s := &Struct{
+			Key1:  "value1",
+			Extra: []string{"value2"},
+		}
+		_, err := serialize.Encode(s)
+		assert.ErrorContains(t, err, "has an invalid")
+	})
 	t.Run("no tag", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {
