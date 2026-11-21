@@ -190,7 +190,8 @@ func Decode(b []byte, o any) error {
 				} else {
 					// If the value is a type that has a valid UnmarshalBinary method, call that method
 					// and assign the value the field.
-					if method := valueField.MethodByName("UnmarshalBinary"); method.IsValid() && IsUnmarshaler(method.Type(), field.Type) {
+					method := valueField.MethodByName("UnmarshalBinary")
+					if method.IsValid() && IsUnmarshaler(method.Type(), field.Type) {
 						args := []reflect.Value{reflect.ValueOf(parsed)}
 						result := method.Call(args)
 						// Check and coerce to error if error is non-nil.
