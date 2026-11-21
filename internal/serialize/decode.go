@@ -52,19 +52,16 @@ func Decode(b []byte, o any) error {
 	// Create a slice of key/value pairs.
 	pairs := make([][][]byte, 0, len(blines))
 	for i := range blines {
-		// Split each line by ':'
-		pairline := bytes.Split(blines[i], []byte{0x3a})
-		if len(pairline) < 2 {
+		// Split each line on the first ':' (accounts for ':' in value).
+		k, v, found := bytes.Cut(blines[i], []byte{0x3a})
+		if !found {
 			// If no ':' character found, skip this line
 			continue
 		}
 		// Trim any surrounding whitespace on key.
-		key := bytes.TrimSpace(pairline[0])
+		key := bytes.TrimSpace(k)
 		// Trim any surrounding whitespace on value.
-		value := bytes.TrimSpace(
-			// Join remaining characters (accounts for ':' in value)
-			bytes.Join(pairline[1:], []byte{0x0}),
-		)
+		value := bytes.TrimSpace(v)
 		// Add pair to k/v pair slice.
 		pairs = append(pairs, [][]byte{key, value})
 	}

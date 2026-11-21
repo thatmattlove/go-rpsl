@@ -119,6 +119,28 @@ extra content`)
 		assert.Equal(t, rpsl.ASN(65000), autNum.AutNum)
 		assert.Equal(t, "AS-ACME-1", autNum.ASName)
 	})
+	t.Run("colon in value", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`route6: 2001:db8::/32
+origin: AS65000
+remarks: see https://example.com:8080/path`)
+		var route6 rpsl.Route6
+		err := serialize.Decode(b, &route6)
+		require.NoError(t, err)
+		assert.Equal(t, "2001:db8::/32", route6.Route6)
+		assert.Equal(t, rpsl.ASN(65000), route6.Origin)
+		assert.Equal(t, "see https://example.com:8080/path", route6.Extra["remarks"])
+	})
+	t.Run("colon in multiline value", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`as-set: AS65000:AS-FOO
+members: AS65000:AS-BAR`)
+		var asSet rpsl.ASSet
+		err := serialize.Decode(b, &asSet)
+		require.NoError(t, err)
+		assert.Equal(t, "AS65000:AS-FOO", asSet.ASSet)
+		assert.Equal(t, []string{"AS65000:AS-BAR"}, asSet.Members)
+	})
 	t.Run("skip empty tag", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {
