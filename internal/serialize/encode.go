@@ -13,7 +13,11 @@ import (
 var ErrMustBeStruct = errors.New("value must be a struct")
 
 func ProcessAsString(key, val string) string {
-	return fmt.Sprintf("%s: %s\n", key, strings.TrimSpace(strings.Trim(val, "\n")))
+	val = strings.TrimSpace(val)
+	if strings.Contains(val, "\n") {
+		return ProcessAsMultilineString(key, val)
+	}
+	return fmt.Sprintf("%s: %s\n", key, val)
 }
 
 func ProcessAsStringSlice(key string, val []string, sep string) string {
