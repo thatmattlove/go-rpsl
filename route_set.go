@@ -6,14 +6,16 @@ import (
 	"strings"
 )
 
-var startsWithRSDash = regexp.MustCompile(`^[RaSs]{2}\-.*$`)
-var startsWithRS = regexp.MustCompile(`^[RaSs]{2}.*$`)
+var rsName = regexp.MustCompile(`(?i)^(AS\d+:)*RS-[^:]*(:(AS\d+|RS-[^:]*))*$`)
+var startsWithRS = regexp.MustCompile(`(?i)^RS.*$`)
 
-// RSName creates an route-set member type, e.g. RS-ACME.
+// RSName creates a route-set member type, e.g. RS-ACME or AS65000:RS-ACME. Valid route-set
+// names, including hierarchical names, are returned unchanged.
 func RSName(name string) string {
-	if startsWithRSDash.MatchString(name) {
-		name = name[3:]
-	} else if startsWithRS.MatchString(name) {
+	if rsName.MatchString(name) {
+		return name
+	}
+	if startsWithRS.MatchString(name) {
 		name = name[2:]
 	}
 	return "RS-" + name
