@@ -29,7 +29,7 @@ func (a ASN) UnmarshalBinary(b []byte) (ASN, error) {
 	return ASN(u), nil
 }
 
-// ASName creates an ASN object name from an ASN uint32 number, e.g. AS65000.
+// ASNName creates an ASN object name from an ASN uint32 number, e.g. AS65000.
 func ASNName(a uint32) string {
 	return ASN(a).String()
 }
