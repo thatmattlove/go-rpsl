@@ -101,14 +101,14 @@ type ASSet struct {
 	Description string `rpsl:"descr,omitempty" as:"multiline"`
 	// Admin Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
-	AdminPOC string `rpsl:"admin-c,omitempty" as:"multiline"`
+	AdminPOC string `rpsl:"admin-c,omitempty" as:"list"`
 	// Technical Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
-	TechPOC string `rpsl:"tech-c,omitempty" as:"multiline"`
+	TechPOC string `rpsl:"tech-c,omitempty" as:"list"`
 	// Maintainer object, the prefix MNT and the Org ID of the organization that configures
 	// (maintains) the IRR object and manages the resource that is specified in the route object.
 	// It is in the format MNT-OrgID; for example, MNT-EXAMPLECORP.
-	MntBy string `rpsl:"mnt-by,omitempty" as:"multiline"`
+	MntBy string `rpsl:"mnt-by,omitempty" as:"list"`
 	// Any additional information the creator of the objects wants to provide.
 	Remarks string `rpsl:"remarks,omitempty" as:"multiline"`
 	// Members of the set; ASNs, aut-num object names, or other as-set names are accepted.

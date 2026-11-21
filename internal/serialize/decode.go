@@ -15,8 +15,8 @@ func ProcessString(current string, _new []byte, sep string) string {
 	parts = append(parts, newParts...)
 	cleanParts := make([]string, 0, len(parts))
 	for _, p := range parts {
-		if p != "" {
-			cleanParts = append(cleanParts, strings.TrimSpace(p))
+		if p = strings.TrimSpace(p); p != "" {
+			cleanParts = append(cleanParts, p)
 		}
 	}
 	return strings.Trim((strings.Join(cleanParts, sep)), "\n")
@@ -175,6 +175,10 @@ func Decode(b []byte, o any) error {
 						switch as {
 						case "multiline":
 							valueField.SetString(ProcessString(valueType, value, "\n"))
+						case "list":
+							// List values may be comma-separated, and are joined by newline.
+							list := bytes.ReplaceAll(value, []byte{0x2c}, []byte{0xa})
+							valueField.SetString(ProcessString(valueType, list, "\n"))
 						case "comma-space":
 							valueField.SetString(ProcessString(valueType, value, ", "))
 						case "comma":

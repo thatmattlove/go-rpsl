@@ -198,6 +198,33 @@ source: RIPE # Filtered`)
 		require.NoError(t, err)
 		assert.Equal(t, rpsl.ASN(65000), route.Origin)
 	})
+	t.Run("with as list", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`route: 192.0.2.0/24
+origin: AS65000
+admin-c: ADMIN-1, ADMIN-2
+tech-c: TECH-1,TECH-2,
+tech-c: TECH-3
+mnt-by: MNT-1, , MNT-2`)
+		var route rpsl.Route
+		err := serialize.Decode(b, &route)
+		require.NoError(t, err)
+		assert.Equal(t, "ADMIN-1\nADMIN-2", route.AdminPOC)
+		assert.Equal(t, "TECH-1\nTECH-2\nTECH-3", route.TechPOC)
+		assert.Equal(t, "MNT-1\nMNT-2", route.MntBy)
+		exp := []byte(`route: 192.0.2.0/24
+origin: AS65000
+admin-c: ADMIN-1
+admin-c: ADMIN-2
+tech-c: TECH-1
+tech-c: TECH-2
+tech-c: TECH-3
+mnt-by: MNT-1
+mnt-by: MNT-2`)
+		result, err := serialize.Encode(&route)
+		require.NoError(t, err)
+		assert.Equal(t, exp, result)
+	})
 	t.Run("with extra", func(t *testing.T) {
 		t.Parallel()
 		b := []byte(`as-set: AS-ACME
