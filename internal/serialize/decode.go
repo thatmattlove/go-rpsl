@@ -52,6 +52,19 @@ func Decode(b []byte, o any) error {
 	// Create a slice of key/value pairs.
 	pairs := make([][][]byte, 0, len(blines))
 	for i := range blines {
+		if len(blines[i]) == 0 {
+			continue
+		}
+		switch blines[i][0] {
+		case ' ', '\t', '+':
+			// Append continuation line to the previous pair's value, joined with a single space.
+			cont := bytes.TrimSpace(blines[i][1:])
+			if len(pairs) > 0 && len(cont) > 0 {
+				prev := pairs[len(pairs)-1]
+				prev[1] = bytes.TrimSpace(bytes.Join([][]byte{prev[1], cont}, []byte{0x20}))
+			}
+			continue
+		}
 		// Split each line on the first ':' (accounts for ':' in value).
 		k, v, found := bytes.Cut(blines[i], []byte{0x3a})
 		if !found {

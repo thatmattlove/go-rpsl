@@ -1,6 +1,7 @@
 package serialize_test
 
 import (
+	"bytes"
 	"errors"
 	"testing"
 
@@ -140,6 +141,67 @@ members: AS65000:AS-BAR`)
 		require.NoError(t, err)
 		assert.Equal(t, "AS65000:AS-FOO", asSet.ASSet)
 		assert.Equal(t, []string{"AS65000:AS-BAR"}, asSet.Members)
+	})
+	t.Run("continuation lines", func(t *testing.T) {
+		t.Parallel()
+		b := []byte("aut-num: AS65000\n" +
+			"as-name: AS-ACME-1\n" +
+			"import: from AS65001\n" +
+			"        accept ANY\n" +
+			"mp-import: afi ipv6.unicast\n" +
+			"\tfrom AS65002 2001:db8::1\n" +
+			"+\n" +
+			"+  accept ANY\n" +
+			"export:\n" +
+			"   \n" +
+			"  to AS65001 announce AS65000")
+		orig := bytes.Clone(b)
+		var autNum rpsl.AutNum
+		err := serialize.Decode(b, &autNum)
+		require.NoError(t, err)
+		assert.Equal(t, "AS-ACME-1", autNum.ASName)
+		assert.Equal(t, "from AS65001 accept ANY", autNum.Import)
+		assert.Equal(t, "afi ipv6.unicast from AS65002 2001:db8::1 accept ANY", autNum.MPImport)
+		assert.Equal(t, "to AS65001 announce AS65000", autNum.Export)
+		assert.Equal(t, orig, b)
+	})
+	t.Run("continuation multiline", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`aut-num: AS65000
+descr: Line 1
+  continued
+descr: Line 2`)
+		var autNum rpsl.AutNum
+		err := serialize.Decode(b, &autNum)
+		require.NoError(t, err)
+		assert.Equal(t, "Line 1 continued\nLine 2", autNum.Description)
+	})
+	t.Run("skip continuation without attribute", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`  orphan: value
+aut-num: AS65000`)
+		var autNum rpsl.AutNum
+		err := serialize.Decode(b, &autNum)
+		require.NoError(t, err)
+		assert.Equal(t, rpsl.ASN(65000), autNum.AutNum)
+		assert.NotContains(t, autNum.Extra, "orphan")
+	})
+	t.Run("crlf", func(t *testing.T) {
+		t.Parallel()
+		b := []byte("aut-num: AS65000\r\n" +
+			"as-name: AS-ACME-1\r\n" +
+			"import: from AS65001\r\n" +
+			"  accept ANY\r\n" +
+			"+\r\n" +
+			"descr: Line 1\r\n" +
+			"descr: Line 2\r\n")
+		var autNum rpsl.AutNum
+		err := serialize.Decode(b, &autNum)
+		require.NoError(t, err)
+		assert.Equal(t, rpsl.ASN(65000), autNum.AutNum)
+		assert.Equal(t, "AS-ACME-1", autNum.ASName)
+		assert.Equal(t, "from AS65001 accept ANY", autNum.Import)
+		assert.Equal(t, "Line 1\nLine 2", autNum.Description)
 	})
 	t.Run("skip empty tag", func(t *testing.T) {
 		t.Parallel()
