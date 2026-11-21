@@ -145,8 +145,8 @@ func Test_ASSetMembers(t *testing.T) {
 		rpsl.ASSetMembers(65000, "AS-ACME", []any{65001, 65002}),
 	)
 	assert.Equal(t,
-		[]string{"AS65000:AS-ACME", "as-acme", "AS-ACME:AS65001"},
-		rpsl.ASSetMembers("AS65000:AS-ACME", "as-acme", "", "AS-ACME:AS65001"),
+		[]string{"AS65000:AS-ACME", "as-acme", "AS-ACME:AS65001", "FOO:AS-BAR"},
+		rpsl.ASSetMembers("AS65000:AS-ACME", "as-acme", "", "AS-ACME:AS65001", "FOO:AS-BAR"),
 	)
 	assert.Equal(t,
 		[]string{"AS0", "AS4294967295"},
@@ -154,7 +154,7 @@ func Test_ASSetMembers(t *testing.T) {
 	)
 	assert.Equal(t,
 		[]string{"AS65000", "AS-ACME"},
-		rpsl.ASSetMembers(" AS65000", "AS-ACME ", "FOO", "RS-X", "FOO:BAR"),
+		rpsl.ASSetMembers(" AS65000", "AS-ACME ", "FOO", "RS-X", "FOO:BAR", "AS65000:RS-X", "AS65000:FOO"),
 	)
 	assert.Equal(t,
 		[]string{"AS4294967295"},

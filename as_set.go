@@ -10,7 +10,7 @@ import (
 var startsWithASDash = regexp.MustCompile(`(?i)^AS-`)
 var startsWithAS = regexp.MustCompile(`(?i)^AS\d+$`)
 var bareAS = regexp.MustCompile(`^\d+$`)
-var hierarchicalASSet = regexp.MustCompile(`(?i)^AS\d+:|:AS-`)
+var asSetComponent = regexp.MustCompile(`(?i)(^|:)AS-`)
 var hierarchicalName = regexp.MustCompile(`(?i)^(AS\d+|(AS|RS)-[^:]*):`)
 
 // ASSetName creates an as-set member type, e.g. AS-ACME or AS65000:AS-ACME. A leading AS- is
@@ -29,8 +29,8 @@ func ASSetName(name string) string {
 }
 
 // ASSetMembers creates a list of as-set members for use by [rpsl.ASSet]. Bare numbers are
-// prefixed with AS. ASNs outside the uint32 range and strings that are not ASNs or as-set names
-// are dropped.
+// prefixed with AS. ASNs outside the uint32 range and strings that are not ASNs and have no AS-
+// component are dropped.
 func ASSetMembers(vals ...any) []string {
 	out := make([]string, 0, len(vals))
 	for _, v := range vals {
@@ -46,7 +46,7 @@ func ASSetMembers(vals ...any) []string {
 				}
 				continue
 			}
-			if startsWithASDash.MatchString(t) || hierarchicalASSet.MatchString(t) {
+			if asSetComponent.MatchString(t) {
 				out = append(out, t)
 			}
 			continue
