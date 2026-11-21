@@ -156,6 +156,27 @@ uint32: 12345 # comment`)
 		assert.Equal(t, rpsl.ASN(65000), s.Origin)
 		assert.Equal(t, uint32(12345), s.Uint32)
 	})
+	t.Run("with comments continuation lines", func(t *testing.T) {
+		t.Parallel()
+		b := []byte("route-set: RS-ACME\n" +
+			"descr: Line 1 # kept verbatim\n" +
+			"  continued\n" +
+			"members: 192.0.2.0/24, # customer A\n" +
+			"  198.51.100.0/24, # customer B\n" +
+			"  RS-CORP\n" +
+			"mp-members: 2001:db8::/32, # c\n" +
+			"+ 2001:db8:1::/48")
+		var rs rpsl.RouteSet
+		err := serialize.Decode(b, &rs)
+		require.NoError(t, err)
+		assert.Equal(t, "Line 1 # kept verbatim continued", rs.Description)
+		assert.Equal(t, []string{"192.0.2.0/24", "198.51.100.0/24", "RS-CORP"}, rs.Members)
+		assert.Equal(t, []string{"2001:db8::/32", "2001:db8:1::/48"}, rs.MPMembers)
+		var route rpsl.Route
+		err = serialize.Decode([]byte("route: 192.0.2.0/24\norigin: # comment\n  AS65000"), &route)
+		require.NoError(t, err)
+		assert.Equal(t, rpsl.ASN(65000), route.Origin)
+	})
 	t.Run("with extra", func(t *testing.T) {
 		t.Parallel()
 		b := []byte(`as-set: AS-ACME

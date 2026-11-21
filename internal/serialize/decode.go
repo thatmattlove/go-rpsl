@@ -23,9 +23,7 @@ func ProcessString(current string, _new []byte, sep string) string {
 }
 
 func ProcessStringSlice(current reflect.Value, _new []byte) reflect.Value {
-	// Strip any trailing '#' comment.
-	v, _, _ := strings.Cut(string(_new), "#")
-	for _, p := range strings.Split(v, ",") {
+	for _, p := range strings.Split(string(_new), ",") {
 		// Trim any surrounding whitespace on each member and skip empty members.
 		if p = strings.TrimSpace(p); p != "" {
 			current = reflect.Append(current, reflect.ValueOf(p))
@@ -85,11 +83,13 @@ func Decode(b []byte, o any) error {
 			// Skip comment lines.
 			continue
 		case ' ', '\t', '+':
-			// Append continuation line to the previous pair's value, joined with a single space.
+			// Append continuation line to the previous pair's values, joined with a single space.
 			cont := bytes.TrimSpace(blines[i][1:])
-			if len(pairs) > 0 && len(cont) > 0 {
+			parsed, _, _ := bytes.Cut(cont, []byte{0x23})
+			if len(pairs) > 0 {
 				prev := pairs[len(pairs)-1]
 				prev[1] = bytes.TrimSpace(bytes.Join([][]byte{prev[1], cont}, []byte{0x20}))
+				prev[2] = bytes.TrimSpace(bytes.Join([][]byte{prev[2], parsed}, []byte{0x20}))
 			}
 			continue
 		}
@@ -103,8 +103,10 @@ func Decode(b []byte, o any) error {
 		key := bytes.TrimSpace(k)
 		// Trim any surrounding whitespace on value.
 		value := bytes.TrimSpace(v)
+		// Strip any trailing '#' comment from values that are parsed.
+		parsed, _, _ := bytes.Cut(value, []byte{0x23})
 		// Add pair to k/v pair slice.
-		pairs = append(pairs, [][]byte{key, value})
+		pairs = append(pairs, [][]byte{key, value, bytes.TrimSpace(parsed)})
 	}
 	for i := range rt.NumField() {
 		// Retrieve struct field.
@@ -125,8 +127,9 @@ func Decode(b []byte, o any) error {
 
 		// Begin struct field to key/pair matching.
 		for _, pair := range pairs {
-			key := pair[0]   // left side of first ':', key
-			value := pair[1] // right side of first ':', value
+			key := pair[0]    // left side of first ':', key
+			value := pair[1]  // right side of first ':', value
+			parsed := pair[2] // value without '#' comments
 
 			// Add extra values to the 'Extra' field map, which is tagged as "-".
 			if keyName == "-" {
@@ -160,12 +163,9 @@ func Decode(b []byte, o any) error {
 						}
 					case []string:
 						// List values may be comma-separated regardless of how they are encoded.
-						valueField.Set(ProcessStringSlice(valueField, value))
+						valueField.Set(ProcessStringSlice(valueField, parsed))
 					}
 				} else {
-					// Strip any trailing '#' comment from values that are parsed.
-					parsed, _, _ := bytes.Cut(value, []byte{0x23})
-					parsed = bytes.TrimSpace(parsed)
 					// If the value is a type that has a valid UnmarshalBinary method, call that method
 					// and assign the value the field.
 					if method := valueField.MethodByName("UnmarshalBinary"); method.IsValid() && isUnmarshaler(method.Type(), field.Type) {
