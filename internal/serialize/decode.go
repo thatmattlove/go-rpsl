@@ -137,7 +137,10 @@ func Decode(b []byte, o any) error {
 
 		// Add extra values to the 'Extra' field map, which is tagged as "-".
 		if keyName == "-" {
-			m := valueField.Interface().(map[string]string)
+			m, ok := valueField.Interface().(map[string]string)
+			if !ok {
+				return fmt.Errorf("field '%s' has an invalid rpsl tag", field.Name)
+			}
 			if m == nil {
 				// Initialize map so it is never nil after decoding.
 				m = make(map[string]string)

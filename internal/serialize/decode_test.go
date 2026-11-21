@@ -455,6 +455,16 @@ skip: skip`)
 		assert.Equal(t, "value", s.Key)
 		assert.Zero(t, s.Skip)
 	})
+	t.Run("err invalid extra", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Key   string `rpsl:"key"`
+			Extra string `rpsl:"-"`
+		}
+		var s Struct
+		err := serialize.Decode([]byte(`key: value`), &s)
+		assert.ErrorContains(t, err, "field 'Extra' has an invalid rpsl tag")
+	})
 	t.Run("err nested unmarshal", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {
