@@ -22,9 +22,14 @@ func ProcessString(current string, _new []byte, sep string) string {
 	return strings.Trim((strings.Join(cleanParts, sep)), "\n")
 }
 
-func ProcessStringSlice(current reflect.Value, _new []byte, sep string) reflect.Value {
-	parts := strings.Split(string(_new), sep)
-	return reflect.AppendSlice(current, reflect.ValueOf(parts))
+func ProcessStringSlice(current reflect.Value, _new []byte) reflect.Value {
+	for _, p := range strings.Split(string(_new), ",") {
+		// Trim any surrounding whitespace on each member and skip empty members.
+		if p = strings.TrimSpace(p); p != "" {
+			current = reflect.Append(current, reflect.ValueOf(p))
+		}
+	}
+	return current
 }
 
 // hasField reports whether t has a field with an rpsl tag matching key.
@@ -144,14 +149,8 @@ func Decode(b []byte, o any) error {
 							valueField.SetString(ProcessString(valueType, value, ","))
 						}
 					case []string:
-						switch as {
-						case "multiline":
-							valueField.Set(ProcessStringSlice(valueField, value, "\n"))
-						case "comma-space":
-							valueField.Set(ProcessStringSlice(valueField, value, ", "))
-						case "comma":
-							valueField.Set(ProcessStringSlice(valueField, value, ","))
-						}
+						// List values may be comma-separated regardless of how they are encoded.
+						valueField.Set(ProcessStringSlice(valueField, value))
 					}
 				} else {
 					// If the value is a type that has a valid UnmarshalBinary method, call that method

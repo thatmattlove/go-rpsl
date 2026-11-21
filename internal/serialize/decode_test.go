@@ -85,6 +85,40 @@ members: AS-65001`)
 		exp := []string{"AS65000", "AS-65001"}
 		assert.Equal(t, exp, asSet.Members)
 	})
+	t.Run("with as comma whitespace", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`route-set: RS-ACME
+members: 192.0.2.0/24, RS-CORP
+members: 198.51.100.0/24`)
+		var rs rpsl.RouteSet
+		err := serialize.Decode(b, &rs)
+		require.NoError(t, err)
+		exp := []string{"192.0.2.0/24", "RS-CORP", "198.51.100.0/24"}
+		assert.Equal(t, exp, rs.Members)
+	})
+	t.Run("with as comma space no space", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`aut-num: AS65000
+as-name: AS-65000
+member-of: AS-A,AS-B`)
+		var autNum rpsl.AutNum
+		err := serialize.Decode(b, &autNum)
+		require.NoError(t, err)
+		exp := []string{"AS-A", "AS-B"}
+		assert.Equal(t, exp, autNum.MemberOf)
+	})
+	t.Run("with as multiline comma separated", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`as-set: AS-ACME
+members: AS65000,AS65001
+members:
+members: AS-A, AS-B,`)
+		var asSet rpsl.ASSet
+		err := serialize.Decode(b, &asSet)
+		require.NoError(t, err)
+		exp := []string{"AS65000", "AS65001", "AS-A", "AS-B"}
+		assert.Equal(t, exp, asSet.Members)
+	})
 	t.Run("with extra", func(t *testing.T) {
 		t.Parallel()
 		b := []byte(`as-set: AS-ACME
