@@ -110,7 +110,11 @@ func Encode(s any) ([]byte, error) {
 					out += ProcessAsStringSlice(key, stype, ", ")
 				case "comma":
 					out += ProcessAsStringSlice(key, stype, ",")
+				default:
+					return nil, fmt.Errorf("field '%s' has an invalid as tag", field.Name)
 				}
+			default:
+				return nil, fmt.Errorf("field '%s' has an invalid as tag", field.Name)
 			}
 		} else {
 			value := ""

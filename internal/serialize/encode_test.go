@@ -86,6 +86,19 @@ key2: 65000`)
 		_, err := serialize.Encode(s)
 		assert.ErrorContains(t, err, "has an invalid")
 	})
+	t.Run("invalid as tag", func(t *testing.T) {
+		t.Parallel()
+		type Slice struct {
+			Key1 []string `rpsl:"key1" as:"invalid"`
+		}
+		_, err := serialize.Encode(&Slice{Key1: []string{"value1"}})
+		assert.ErrorContains(t, err, "has an invalid as tag")
+		type Uint struct {
+			Key1 uint32 `rpsl:"key1" as:"multiline"`
+		}
+		_, err = serialize.Encode(&Uint{Key1: 65000})
+		assert.ErrorContains(t, err, "has an invalid as tag")
+	})
 	t.Run("invalid extra", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {
