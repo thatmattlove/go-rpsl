@@ -132,7 +132,8 @@ func Decode(b []byte, o any) error {
 					// Initialize map if this is the first pass.
 					m = make(map[string]string)
 				}
-				m[string(key)] = string(value)
+				// Join repeated attributes by newline.
+				m[string(key)] = ProcessString(m[string(key)], value, "\n")
 				// Reassign 'Extra' map.
 				valueField.Set(reflect.ValueOf(m))
 				continue

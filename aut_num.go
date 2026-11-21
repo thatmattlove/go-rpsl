@@ -54,22 +54,22 @@ type AutNum struct {
 	Description string `rpsl:"descr,omitempty" as:"multiline"`
 	// Admin Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
-	AdminPOC string `rpsl:"admin-c,omitempty"`
+	AdminPOC string `rpsl:"admin-c,omitempty" as:"multiline"`
 	// Technical Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
-	TechPOC string `rpsl:"tech-c,omitempty"`
+	TechPOC string `rpsl:"tech-c,omitempty" as:"multiline"`
 	// Maintainer object, the prefix MNT and the Org ID of the organization that configures
 	// (maintains) the IRR object and manages the resource that is specified in the route object.
 	// It is in the format MNT-OrgID; for example, MNT-EXAMPLECORP.
-	MntBy string `rpsl:"mnt-by,omitempty"`
+	MntBy string `rpsl:"mnt-by,omitempty" as:"multiline"`
 	// Import policy expression. See RFC2622 section 6.1.
-	Import string `rpsl:"import,omitempty"`
+	Import string `rpsl:"import,omitempty" as:"multiline"`
 	// Export policy expression. See RFC2622 section 6.1.
-	Export string `rpsl:"export,omitempty"`
+	Export string `rpsl:"export,omitempty" as:"multiline"`
 	// Multi-protocol import policy expression. See RFC4012 section 2.5.
-	MPImport string `rpsl:"mp-import,omitempty"`
+	MPImport string `rpsl:"mp-import,omitempty" as:"multiline"`
 	// Multi-protocol export policy expression. See RFC4012 section 2.5.
-	MPExport string `rpsl:"mp-export,omitempty"`
+	MPExport string `rpsl:"mp-export,omitempty" as:"multiline"`
 	// MemberOf can be a list of other aut-num objects or as-set objects of which this aut-num
 	// object is a member.
 	MemberOf []string `rpsl:"member-of,omitempty" as:"comma-space"`
@@ -81,9 +81,9 @@ type AutNum struct {
 	// are members of the set.
 	MembersByRef []string `rpsl:"mbrs-by-ref,omitempty" as:"comma-space"`
 	// Default routing policies. See RFC 2622 section 6.5.
-	Default string `rpsl:"default,omitempty"`
+	Default string `rpsl:"default,omitempty" as:"multiline"`
 	// Multi-protocol default routing policies. See RFC 4012 section 2.5.
-	MPDefault string `rpsl:"mp-default,omitempty"`
+	MPDefault string `rpsl:"mp-default,omitempty" as:"multiline"`
 	// Private container for extra attributes
 	Extra map[string]string `rpsl:"-"`
 	// Registry Source. Most registries require this field.

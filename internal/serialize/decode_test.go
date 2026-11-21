@@ -155,6 +155,63 @@ extra1: value1`)
 		require.NoError(t, err)
 		assert.Equal(t, map[string]string{"extra1": "value1"}, asSet.Extra)
 	})
+	t.Run("with repeated extra", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`as-set: AS-ACME
+extra1: value1
+extra1: value2`)
+		var asSet rpsl.ASSet
+		err := serialize.Decode(b, &asSet)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"extra1": "value1\nvalue2"}, asSet.Extra)
+	})
+	t.Run("with repeated attributes", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`aut-num: AS65000
+as-name: AS-65000
+admin-c: ADMIN-1
+admin-c: ADMIN-2
+tech-c: TECH-1
+tech-c: TECH-2
+mnt-by: MNT-1
+mnt-by: MNT-2
+import: from AS65001 accept ANY
+import: from AS65002 accept ANY
+export: to AS65001 announce AS65000
+export: to AS65002 announce AS65000
+mp-import: afi ipv6.unicast from AS65001 accept ANY
+mp-import: afi ipv6.unicast from AS65002 accept ANY
+mp-export: afi ipv6.unicast to AS65001 announce AS65000
+mp-export: afi ipv6.unicast to AS65002 announce AS65000
+default: to AS65001
+default: to AS65002
+mp-default: afi ipv6.unicast to AS65001
+mp-default: afi ipv6.unicast to AS65002
+source: ARIN`)
+		var autNum rpsl.AutNum
+		err := serialize.Decode(b, &autNum)
+		require.NoError(t, err)
+		assert.Equal(t, "ADMIN-1\nADMIN-2", autNum.AdminPOC)
+		assert.Equal(t, "TECH-1\nTECH-2", autNum.TechPOC)
+		assert.Equal(t, "MNT-1\nMNT-2", autNum.MntBy)
+		assert.Equal(t, "from AS65001 accept ANY\nfrom AS65002 accept ANY", autNum.Import)
+		assert.Equal(t, "to AS65001 announce AS65000\nto AS65002 announce AS65000", autNum.Export)
+		assert.Equal(t, "to AS65001\nto AS65002", autNum.Default)
+		assert.Nil(t, autNum.Extra)
+		result, err := serialize.Encode(&autNum)
+		require.NoError(t, err)
+		assert.Equal(t, b, result)
+	})
+	t.Run("with repeated remarks", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`route-set: RS-ACME
+remarks: Line 1
+remarks: Line 2`)
+		var rs rpsl.RouteSet
+		err := serialize.Decode(b, &rs)
+		require.NoError(t, err)
+		assert.Equal(t, "Line 1\nLine 2", rs.Remarks)
+	})
 	t.Run("without extra", func(t *testing.T) {
 		t.Parallel()
 		b := []byte(`route: 192.0.2.0/24

@@ -45,16 +45,16 @@ type RouteSet struct {
 	Description string `rpsl:"descr,omitempty" as:"multiline"`
 	// Admin Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
-	AdminPOC string `rpsl:"admin-c,omitempty"`
+	AdminPOC string `rpsl:"admin-c,omitempty" as:"multiline"`
 	// Technical Point of Contact handle. For ARIN, this field is the exact POC Handle as shown in
 	// Whois/RDAP for the Org ID.
-	TechPOC string `rpsl:"tech-c,omitempty"`
+	TechPOC string `rpsl:"tech-c,omitempty" as:"multiline"`
 	// Maintainer object, the prefix MNT and the Org ID of the organization that configures
 	// (maintains) the IRR object and manages the resource that is specified in the route object.
 	// It is in the format MNT-OrgID; for example, MNT-EXAMPLECORP.
-	MntBy string `rpsl:"mnt-by,omitempty"`
+	MntBy string `rpsl:"mnt-by,omitempty" as:"multiline"`
 	// Any additional information the creator of the objects wants to provide.
-	Remarks string `rpsl:"remarks,omitempty"`
+	Remarks string `rpsl:"remarks,omitempty" as:"multiline"`
 	// Members of the set; IPv4 prefixes or other route-set names are accepted.
 	//
 	// Use rpsl.RSMembers & rpsl.RSMember functions to ensure proper formatting.
