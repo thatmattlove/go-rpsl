@@ -64,6 +64,9 @@ func Encode(s any) ([]byte, error) {
 	out := ""
 	for i := range t.NumField() {
 		field := t.Field(i)
+		if !field.IsExported() {
+			continue
+		}
 		valueField := v.Field(i)
 		sval := valueField.Interface()
 		tag := field.Tag.Get("rpsl")

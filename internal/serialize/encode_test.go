@@ -57,6 +57,19 @@ key2: 65000`)
 		exp := []byte(`key1: value1`)
 		assert.Equal(t, exp, result)
 	})
+	t.Run("unexported field", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Key1 string `rpsl:"key1"`
+			key2 string `rpsl:"key2"`
+			key3 string
+		}
+		s := &Struct{Key1: "value1", key2: "value2", key3: "value3"}
+		result, err := serialize.Encode(s)
+		require.NoError(t, err)
+		exp := []byte(`key1: value1`)
+		assert.Equal(t, exp, result)
+	})
 	t.Run("non-struct", func(t *testing.T) {
 		t.Parallel()
 		_, err := serialize.Encode("non-struct")
