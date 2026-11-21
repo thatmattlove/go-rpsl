@@ -414,6 +414,18 @@ uint32: wrong`)
 		err := serialize.Decode(b, &s)
 		assert.ErrorContains(t, err, "value could not be parsed as uint32")
 	})
+	t.Run("uint32 overflow", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Uint32 uint32 `rpsl:"uint32"`
+		}
+		var s Struct
+		err := serialize.Decode([]byte(`uint32: 4294967295`), &s)
+		require.NoError(t, err)
+		assert.Equal(t, uint32(4294967295), s.Uint32)
+		err = serialize.Decode([]byte(`uint32: 4294967296`), &s)
+		assert.ErrorContains(t, err, "value could not be parsed as uint32")
+	})
 	t.Run("with as comma non-slice", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {

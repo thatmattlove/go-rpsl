@@ -181,7 +181,7 @@ func Decode(b []byte, o any) error {
 						valueField.SetString(string(value))
 						continue
 					case reflect.Uint32:
-						u, err := strconv.ParseUint(string(parsed), 10, 64)
+						u, err := strconv.ParseUint(string(parsed), 10, 32)
 						if err != nil {
 							err := errors.Join(fmt.Errorf("%s: value could not be parsed as uint32", keyName), err)
 							return err
