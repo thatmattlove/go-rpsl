@@ -23,7 +23,9 @@ func ProcessString(current string, _new []byte, sep string) string {
 }
 
 func ProcessStringSlice(current reflect.Value, _new []byte) reflect.Value {
-	for _, p := range strings.Split(string(_new), ",") {
+	// Strip any trailing '#' comment.
+	v, _, _ := strings.Cut(string(_new), "#")
+	for _, p := range strings.Split(v, ",") {
 		// Trim any surrounding whitespace on each member and skip empty members.
 		if p = strings.TrimSpace(p); p != "" {
 			current = reflect.Append(current, reflect.ValueOf(p))
@@ -153,10 +155,13 @@ func Decode(b []byte, o any) error {
 						valueField.Set(ProcessStringSlice(valueField, value))
 					}
 				} else {
+					// Strip any trailing '#' comment from values that are parsed.
+					parsed, _, _ := bytes.Cut(value, []byte{0x23})
+					parsed = bytes.TrimSpace(parsed)
 					// If the value is a type that has a valid UnmarshalBinary method, call that method
 					// and assign the value the field.
 					if method := valueField.MethodByName("UnmarshalBinary"); method.IsValid() {
-						args := []reflect.Value{reflect.ValueOf(value)}
+						args := []reflect.Value{reflect.ValueOf(parsed)}
 						result := method.Call(args)
 						// Check and coerce to error if error is non-nil.
 						maybeErr := result[1].Interface()
@@ -175,7 +180,7 @@ func Decode(b []byte, o any) error {
 						valueField.SetString(string(value))
 						continue
 					case reflect.Uint32:
-						u, err := strconv.ParseUint(string(value), 10, 64)
+						u, err := strconv.ParseUint(string(parsed), 10, 64)
 						if err != nil {
 							err := errors.Join(fmt.Errorf("%s: value could not be parsed as uint32", keyName), err)
 							return err

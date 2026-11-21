@@ -119,6 +119,31 @@ members: AS-A, AS-B,`)
 		exp := []string{"AS65000", "AS65001", "AS-A", "AS-B"}
 		assert.Equal(t, exp, asSet.Members)
 	})
+	t.Run("with comments", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`route-set: RS-ACME
+descr: Line 1 # kept verbatim
+members: 192.0.2.0/24, RS-CORP # comment`)
+		var rs rpsl.RouteSet
+		err := serialize.Decode(b, &rs)
+		require.NoError(t, err)
+		assert.Equal(t, "Line 1 # kept verbatim", rs.Description)
+		assert.Equal(t, []string{"192.0.2.0/24", "RS-CORP"}, rs.Members)
+	})
+	t.Run("with comments parsed", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Origin rpsl.ASN `rpsl:"origin"`
+			Uint32 uint32   `rpsl:"uint32"`
+		}
+		b := []byte(`origin: AS65000 # comment
+uint32: 12345 # comment`)
+		var s Struct
+		err := serialize.Decode(b, &s)
+		require.NoError(t, err)
+		assert.Equal(t, rpsl.ASN(65000), s.Origin)
+		assert.Equal(t, uint32(12345), s.Uint32)
+	})
 	t.Run("with extra", func(t *testing.T) {
 		t.Parallel()
 		b := []byte(`as-set: AS-ACME
