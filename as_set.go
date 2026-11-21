@@ -10,14 +10,15 @@ var startsWithAS = regexp.MustCompile(`(?i)^AS\d+$`)
 var bareAS = regexp.MustCompile(`^\d+$`)
 var hierarchicalASSet = regexp.MustCompile(`(?i)^AS\d+:|:AS-`)
 
-// ASSetName creates an as-set member type, e.g. AS-ACME or AS65000:AS-ACME. Names that already
-// begin with AS- and hierarchical names that begin with an ASN or contain an AS- component are
+// ASSetName creates an as-set member type, e.g. AS-ACME or AS65000:AS-ACME. A leading AS- is
+// upper-cased; other hierarchical names that begin with an ASN or contain an AS- component are
 // returned unchanged.
 func ASSetName(name string) string {
-	if startsWithASDash.MatchString(name) || hierarchicalASSet.MatchString(name) {
+	if startsWithASDash.MatchString(name) {
+		name = name[3:]
+	} else if hierarchicalASSet.MatchString(name) {
 		return name
-	}
-	if startsWithAS.MatchString(name) {
+	} else if startsWithAS.MatchString(name) {
 		name = name[2:]
 	}
 	return "AS-" + name

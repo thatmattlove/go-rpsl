@@ -81,7 +81,8 @@ func Test_RSSetName(t *testing.T) {
 	})
 	t.Run("lowercase", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, "rs-acme", rpsl.RSName("rs-acme"))
+		assert.Equal(t, "RS-acme", rpsl.RSName("rs-acme"))
+		assert.Equal(t, "as65000:rs-acme", rpsl.RSName("as65000:rs-acme"))
 		assert.Equal(t, "RS-acme", rpsl.RSName("rsacme"))
 	})
 	t.Run("not a prefix", func(t *testing.T) {

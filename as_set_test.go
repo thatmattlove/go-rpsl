@@ -77,7 +77,8 @@ func Test_ASSetName(t *testing.T) {
 	})
 	t.Run("lowercase", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, "as-acme", rpsl.ASSetName("as-acme"))
+		assert.Equal(t, "AS-acme", rpsl.ASSetName("as-acme"))
+		assert.Equal(t, "as65000:as-acme", rpsl.ASSetName("as65000:as-acme"))
 		assert.Equal(t, "AS-65000", rpsl.ASSetName("as65000"))
 	})
 	t.Run("not a prefix", func(t *testing.T) {
