@@ -68,24 +68,19 @@ func Decode(b []byte, o any) error {
 	b = bytes.Trim(b, "\n")
 	// Separate full blob by lines.
 	blines := bytes.Split(b, []byte{0xa})
-	// Remove the first attribute line's indentation if all attribute lines share it.
-	var indent []byte
-	found := false
+	// Remove the smallest indentation of the attribute lines from each line.
+	indent := len(b)
 	for _, line := range blines {
 		trimmed := bytes.TrimSpace(line)
-		// Skip blank and comment lines.
-		if len(trimmed) == 0 || trimmed[0] == 0x25 || trimmed[0] == 0x23 {
+		// Skip comment and continuation lines and lines without a ':'.
+		if !bytes.Contains(trimmed, []byte{0x3a}) ||
+			trimmed[0] == 0x25 || trimmed[0] == 0x23 || trimmed[0] == 0x2b {
 			continue
 		}
-		if !found {
-			indent, found = line[:len(line)-len(bytes.TrimLeft(line, " \t"))], true
-		} else if !bytes.HasPrefix(line, indent) {
-			indent = nil
-			break
-		}
+		indent = min(indent, len(line)-len(bytes.TrimLeft(line, " \t")))
 	}
 	for i := range blines {
-		blines[i] = bytes.TrimPrefix(blines[i], indent)
+		blines[i] = blines[i][min(indent, len(blines[i])-len(bytes.TrimLeft(blines[i], " \t"))):]
 	}
 
 	// Create a slice of key/value pairs.
@@ -94,12 +89,13 @@ func Decode(b []byte, o any) error {
 		if len(blines[i]) == 0 {
 			continue
 		}
-		switch blines[i][0] {
-		case 0x25, 0x23:
+		switch c := blines[i][0]; {
+		case c == 0x25 || c == 0x23:
 			// Skip comment lines.
 			continue
-		case 0x20, 0x9, 0x2b:
+		case c == 0x2b || (c == 0x20 || c == 0x9) && len(pairs) > 0:
 			// Append continuation line to the previous pair's values, joined with a single space.
+			// An indented line without a previous attribute is parsed as an attribute.
 			cont := bytes.TrimSpace(blines[i][1:])
 			parsed, _, _ := bytes.Cut(cont, []byte{0x23})
 			if len(pairs) > 0 {

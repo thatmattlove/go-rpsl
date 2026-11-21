@@ -415,15 +415,45 @@ descr: Line 1`)
 			assert.Equal(t, rpsl.ASN(65000), route.Origin)
 		}
 	})
+	t.Run("indented object uneven indentation", func(t *testing.T) {
+		t.Parallel()
+		for _, b := range [][]byte{
+			[]byte("  route: 192.0.2.0/24\n  descr: a\n+ b\n  origin: AS65000\n  source: X"),
+			[]byte("  route: 192.0.2.0/24\n  descr: a\n  + b\n  origin: AS65000\n  source: X"),
+			[]byte("  route: 192.0.2.0/24\n  descr: a\n    b\n  origin: AS65000\n  source: X"),
+			[]byte("    route: 192.0.2.0/24\n  descr: a b\n  origin: AS65000\n  source: X"),
+			[]byte("  route: 192.0.2.0/24\ndescr: a b\norigin: AS65000\nsource: X"),
+			[]byte("    orphan\n  route: 192.0.2.0/24\n  descr: a b\n  origin: AS65000\n  source: X"),
+		} {
+			var route rpsl.Route
+			err := serialize.Decode(b, &route)
+			require.NoError(t, err)
+			assert.Equal(t, "192.0.2.0/24", route.Route)
+			assert.Equal(t, rpsl.ASN(65000), route.Origin)
+			assert.Equal(t, "a b", route.Description)
+			assert.Equal(t, "X", route.Source)
+		}
+		for _, b := range [][]byte{
+			[]byte("  route: 192.0.2.0/24\n  descr: a\n b\n  origin: AS65000"),
+			[]byte("  route: 192.0.2.0/24\n  descr: a\n\tb\n  origin: AS65000"),
+		} {
+			var route rpsl.Route
+			err := serialize.Decode(b, &route)
+			require.NoError(t, err)
+			assert.Equal(t, "192.0.2.0/24", route.Route)
+			assert.Equal(t, rpsl.ASN(65000), route.Origin)
+		}
+	})
 	t.Run("skip continuation without attribute", func(t *testing.T) {
 		t.Parallel()
-		b := []byte(`  orphan: value
+		b := []byte(`+ skipped: value
+  orphan: value
 aut-num: AS65000`)
 		var autNum rpsl.AutNum
 		err := serialize.Decode(b, &autNum)
 		require.NoError(t, err)
 		assert.Equal(t, rpsl.ASN(65000), autNum.AutNum)
-		assert.NotContains(t, autNum.Extra, "orphan")
+		assert.Equal(t, map[string]string{"orphan": "value"}, autNum.Extra)
 	})
 	t.Run("crlf", func(t *testing.T) {
 		t.Parallel()
