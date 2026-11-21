@@ -130,6 +130,28 @@ key2: value2`)
 			assert.Equal(t, exp, result)
 		}
 	})
+	t.Run("with newlines", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Key1  string            `rpsl:"key1"`
+			Key2  string            `rpsl:"key2"`
+			Extra map[string]string `rpsl:"-"`
+		}
+		s := &Struct{
+			Key1:  "value1-1\nvalue1-2\n",
+			Key2:  "value2\nkey9: injected",
+			Extra: map[string]string{"key3": "value3-1\n\nvalue3-2"},
+		}
+		result, err := serialize.Encode(s)
+		require.NoError(t, err)
+		exp := []byte(`key1: value1-1
+key1: value1-2
+key2: value2
+key2: key9: injected
+key3: value3-1
+key3: value3-2`)
+		assert.Equal(t, exp, result)
+	})
 	t.Run("with as multiline string", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {

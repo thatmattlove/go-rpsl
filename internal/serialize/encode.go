@@ -31,6 +31,13 @@ func ProcessAsMultilineString(key, val string) string {
 	return out
 }
 
+func ProcessAsValue(key, val string) string {
+	if strings.Contains(val, "\n") {
+		return ProcessAsMultilineString(key, val)
+	}
+	return fmt.Sprintf("%s: %s\n", key, val)
+}
+
 func ProcessAsMultilineStringSlice(key string, val []string) string {
 	out := ""
 	for _, p := range val {
@@ -64,7 +71,7 @@ func Encode(s any) ([]byte, error) {
 			// Sort keys so output is the same on every call.
 			for _, k := range slices.Sorted(maps.Keys(extra)) {
 				if k != "" && extra[k] != "" {
-					out += fmt.Sprintf("%s: %s\n", k, extra[k])
+					out += ProcessAsValue(k, extra[k])
 				}
 			}
 			continue
@@ -106,7 +113,7 @@ func Encode(s any) ([]byte, error) {
 			default:
 				value = fmt.Sprint(stype)
 			}
-			out += fmt.Sprintf("%s: %s\n", key, value)
+			out += ProcessAsValue(key, value)
 		}
 	}
 	out = strings.TrimSuffix(out, "\n")
