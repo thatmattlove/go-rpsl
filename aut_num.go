@@ -18,7 +18,7 @@ func (a ASN) String() string {
 
 // UnmarshalBinary parses a byte string to an ASN type.
 func (a ASN) UnmarshalBinary(b []byte) (ASN, error) {
-	if bytes.HasPrefix(b, []byte{0x41, 0x53}) {
+	if len(b) >= 2 && bytes.EqualFold(b[:2], []byte{0x41, 0x53}) {
 		b = b[2:]
 	}
 	u, err := strconv.ParseUint(string(b), 10, 64)

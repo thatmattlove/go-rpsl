@@ -30,6 +30,15 @@ func Test_ASN(t *testing.T) {
 		require.NoError(t, err)
 		assert.EqualValues(t, uint32(65000), r)
 	})
+	t.Run("unmarshal prefix any case", func(t *testing.T) {
+		t.Parallel()
+		for _, s := range []string{"as65000", "As65000", "aS65000"} {
+			var a rpsl.ASN
+			r, err := a.UnmarshalBinary([]byte(s))
+			require.NoError(t, err, s)
+			assert.Equal(t, rpsl.ASN(65000), r, s)
+		}
+	})
 	t.Run("err unmarshal", func(t *testing.T) {
 		t.Parallel()
 		b := []byte(`abcd`)
