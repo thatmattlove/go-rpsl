@@ -177,7 +177,7 @@ func Decode(b []byte, o any) error {
 							valueField.SetString(ProcessString(valueType, value, "\n"))
 						case "list":
 							// List values may be comma-separated, and are joined by newline.
-							list := bytes.ReplaceAll(value, []byte{0x2c}, []byte{0xa})
+							list := bytes.ReplaceAll(parsed, []byte{0x2c}, []byte{0xa})
 							valueField.SetString(ProcessString(valueType, list, "\n"))
 						case "comma-space":
 							valueField.SetString(ProcessString(valueType, value, ", "))

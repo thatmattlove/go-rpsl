@@ -168,12 +168,17 @@ uint32: 12345 # comment`)
 origin: AS65000
 descr: Line 1 # kept verbatim
 remarks: Line 2 # kept verbatim
+admin-c: ADMIN-1 # comment
+mnt-by: MNT-1, # comment
+  MNT-2 # comment
 source: RIPE # Filtered`)
 		var route rpsl.Route
 		err := serialize.Decode(b, &route)
 		require.NoError(t, err)
 		assert.Equal(t, "192.0.2.0/24", route.Route)
 		assert.Equal(t, "RIPE", route.Source)
+		assert.Equal(t, "ADMIN-1", route.AdminPOC)
+		assert.Equal(t, "MNT-1\nMNT-2", route.MntBy)
 		assert.Equal(t, "Line 1 # kept verbatim", route.Description)
 		assert.Equal(t, map[string]string{"remarks": "Line 2 # kept verbatim"}, route.Extra)
 	})
