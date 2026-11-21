@@ -18,20 +18,20 @@ func ASSetName(name string) string {
 	return "AS-" + name
 }
 
-// ASSetMembers creates a list of as-set members for use by [rpsl.ASSet].
+// ASSetMembers creates a list of as-set members for use by [rpsl.ASSet]. Bare numbers are
+// prefixed with AS; other strings are kept as-is.
 func ASSetMembers(vals ...any) []string {
 	out := make([]string, 0, len(vals))
 	for _, v := range vals {
 		switch t := v.(type) {
 		case string:
-			if startsWithASDash.MatchString(t) || startsWithAS.MatchString(t) {
-				out = append(out, t)
-				continue
-			}
 			if bareAS.MatchString(t) {
-				out = append(out, "AS"+t)
-				continue
+				t = "AS" + t
 			}
+			if t != "" {
+				out = append(out, t)
+			}
+			continue
 		case int:
 			out = append(out, ASN(t).String())
 			continue
