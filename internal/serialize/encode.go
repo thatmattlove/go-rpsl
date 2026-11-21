@@ -44,15 +44,12 @@ func ProcessAsMultilineStringSlice(key string, val []string) string {
 // Encode encodes an RPSL object to a byte string. The argument must be a pointer to an RPSL
 // object.
 func Encode(s any) ([]byte, error) {
-	t := reflect.TypeOf(s)
-	v := reflect.ValueOf(s)
-	if t.Kind() == reflect.Pointer {
-		t = t.Elem()
-		v = v.Elem()
-	}
-	if t.Kind() != reflect.Struct {
+	// Dereference pointer; nil values fail the struct check.
+	v := reflect.Indirect(reflect.ValueOf(s))
+	if v.Kind() != reflect.Struct {
 		return nil, ErrMustBeStruct
 	}
+	t := v.Type()
 	out := ""
 	for i := range t.NumField() {
 		field := t.Field(i)

@@ -47,6 +47,16 @@ key2: 65000`)
 		_, err := serialize.Encode("non-struct")
 		assert.ErrorIs(t, err, serialize.ErrMustBeStruct)
 	})
+	t.Run("nil", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Key1 string `rpsl:"key1"`
+		}
+		_, err := serialize.Encode(nil)
+		assert.ErrorIs(t, err, serialize.ErrMustBeStruct)
+		_, err = serialize.Encode((*Struct)(nil))
+		assert.ErrorIs(t, err, serialize.ErrMustBeStruct)
+	})
 	t.Run("invalid tag", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {
