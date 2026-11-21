@@ -110,6 +110,19 @@ source: ARIN`)
 		require.NoError(t, err)
 		assert.Equal(t, b, result)
 	})
+	t.Run("case insensitive keys", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`Route: 192.0.2.0/24
+ORIGIN: AS65000
+Source: ARIN`)
+		var route rpsl.Route
+		err := serialize.Decode(b, &route)
+		require.NoError(t, err)
+		assert.Equal(t, "192.0.2.0/24", route.Route)
+		assert.Equal(t, rpsl.ASN(65000), route.Origin)
+		assert.Equal(t, "ARIN", route.Source)
+		assert.Nil(t, route.Extra)
+	})
 	t.Run("err non ptr", func(t *testing.T) {
 		t.Parallel()
 		err := serialize.Decode([]byte(""), struct{}{})

@@ -31,7 +31,7 @@ func ProcessStringSlice(current reflect.Value, _new []byte, sep string) reflect.
 func hasField(t reflect.Type, key string) bool {
 	for i := range t.NumField() {
 		name, _, _ := strings.Cut(t.Field(i).Tag.Get("rpsl"), ",")
-		if name != "-" && name == key {
+		if name != "-" && strings.EqualFold(name, key) {
 			return true
 		}
 	}
@@ -130,8 +130,8 @@ func Decode(b []byte, o any) error {
 				valueField.Set(reflect.ValueOf(m))
 				continue
 			}
-			// Struct field matches this k/v pair.
-			if keyName == string(key) {
+			// Struct field matches this k/v pair. Attribute names are case-insensitive.
+			if strings.EqualFold(keyName, string(key)) {
 				if hasAs {
 					switch valueType := valueField.Interface().(type) {
 					case string:
