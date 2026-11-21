@@ -4,15 +4,17 @@ import (
 	"regexp"
 )
 
-var startsWithASDash = regexp.MustCompile(`^[AaSs]{2}\-.*$`)
-var startsWithAS = regexp.MustCompile(`^[AaSs]{2}\d+$`)
+var asSetName = regexp.MustCompile(`(?i)^(AS\d+:)*AS-[^:]*(:(AS\d+|AS-[^:]*))*$`)
+var startsWithAS = regexp.MustCompile(`(?i)^AS\d+$`)
 var bareAS = regexp.MustCompile(`^\d+$`)
 
-// ASSetName creates an as-set member type, e.g. AS-ACME or AS65000.
+// ASSetName creates an as-set member type, e.g. AS-ACME or AS65000:AS-ACME. Valid as-set names,
+// including hierarchical names, are returned unchanged.
 func ASSetName(name string) string {
-	if startsWithASDash.MatchString(name) {
-		name = name[3:]
-	} else if startsWithAS.MatchString(name) {
+	if asSetName.MatchString(name) {
+		return name
+	}
+	if startsWithAS.MatchString(name) {
 		name = name[2:]
 	}
 	return "AS-" + name

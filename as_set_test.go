@@ -25,6 +25,11 @@ members: AS-65001`)
 	t.Run("string", func(t *testing.T) {
 		assert.Equal(t, "AS-ACME", asSet.String())
 	})
+	t.Run("string hierarchical", func(t *testing.T) {
+		t.Parallel()
+		asSet := rpsl.ASSet{ASSet: "AS65000:AS-ACME"}
+		assert.Equal(t, "AS65000:AS-ACME", asSet.String())
+	})
 	t.Run("with extra", func(t *testing.T) {
 		asSet.AddExtra("extra", "value")
 		assert.NotNil(t, asSet.Extra)
@@ -67,6 +72,22 @@ func Test_ASSetName(t *testing.T) {
 	t.Run("no prefix", func(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, "AS-65000", rpsl.ASSetName("65000"))
+	})
+	t.Run("lowercase", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "as-acme", rpsl.ASSetName("as-acme"))
+		assert.Equal(t, "AS-65000", rpsl.ASSetName("as65000"))
+	})
+	t.Run("not a prefix", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "AS-SA-ACME", rpsl.ASSetName("SA-ACME"))
+		assert.Equal(t, "AS-ss-acme", rpsl.ASSetName("ss-acme"))
+	})
+	t.Run("hierarchical", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "AS65000:AS-ACME", rpsl.ASSetName("AS65000:AS-ACME"))
+		assert.Equal(t, "AS-ACME:AS65000", rpsl.ASSetName("AS-ACME:AS65000"))
+		assert.Equal(t, "AS65000:AS-ACME:AS-CORP", rpsl.ASSetName("AS65000:AS-ACME:AS-CORP"))
 	})
 }
 
