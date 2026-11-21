@@ -56,6 +56,9 @@ func Decode(b []byte, o any) error {
 			continue
 		}
 		switch blines[i][0] {
+		case '%', '#':
+			// Skip comment lines.
+			continue
 		case ' ', '\t', '+':
 			// Append continuation line to the previous pair's value, joined with a single space.
 			cont := bytes.TrimSpace(blines[i][1:])

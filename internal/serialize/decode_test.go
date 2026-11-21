@@ -203,6 +203,25 @@ aut-num: AS65000`)
 		assert.Equal(t, "from AS65001 accept ANY", autNum.Import)
 		assert.Equal(t, "Line 1\nLine 2", autNum.Description)
 	})
+	t.Run("skip comment lines", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`% Note: whois banner
+%
+aut-num: AS65000
+# comment: line
+as-name: AS-ACME-1
+import: from AS65001
+# comment: between continuation lines
+  accept ANY`)
+		var autNum rpsl.AutNum
+		err := serialize.Decode(b, &autNum)
+		require.NoError(t, err)
+		assert.Equal(t, rpsl.ASN(65000), autNum.AutNum)
+		assert.Equal(t, "AS-ACME-1", autNum.ASName)
+		assert.Equal(t, "from AS65001 accept ANY", autNum.Import)
+		assert.NotContains(t, autNum.Extra, "% Note")
+		assert.NotContains(t, autNum.Extra, "# comment")
+	})
 	t.Run("skip empty tag", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {
