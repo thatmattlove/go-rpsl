@@ -461,6 +461,24 @@ skip: skip`)
 		assert.Equal(t, "value", s.Key)
 		assert.Zero(t, s.Skip)
 	})
+	t.Run("skip unexported", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Key   string            `rpsl:"key"`
+			skip  string            `rpsl:"skip"`
+			extra map[string]string `rpsl:"-"`
+			Extra map[string]string `rpsl:"-"`
+		}
+		b := []byte(`key: value
+skip: skip`)
+		var s Struct
+		err := serialize.Decode(b, &s)
+		require.NoError(t, err)
+		assert.Equal(t, "value", s.Key)
+		assert.Zero(t, s.skip)
+		assert.Nil(t, s.extra)
+		assert.Equal(t, map[string]string{"skip": "skip"}, s.Extra)
+	})
 	t.Run("err invalid extra", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {

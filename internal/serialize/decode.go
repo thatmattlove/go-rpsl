@@ -43,7 +43,7 @@ func isUnmarshaler(m, t reflect.Type) bool {
 func hasField(t reflect.Type, key string) bool {
 	for i := range t.NumField() {
 		name, _, _ := strings.Cut(t.Field(i).Tag.Get("rpsl"), ",")
-		if name != "-" && strings.EqualFold(name, key) {
+		if name != "-" && t.Field(i).IsExported() && strings.EqualFold(name, key) {
 			return true
 		}
 	}
@@ -125,8 +125,9 @@ func Decode(b []byte, o any) error {
 		valueField := rvElem.Field(i)
 
 		tag := field.Tag.Get("rpsl")
-		if tag == "" {
-			// If no rpsl tag is present, skip this field (hidden or irrelevant field).
+		if tag == "" || !field.IsExported() {
+			// If no rpsl tag is present or the field is unexported, skip this field (hidden or
+			// irrelevant field).
 			continue
 		}
 		// Get rpsl struct tag value, ignoring any ',omitempty' tags.
