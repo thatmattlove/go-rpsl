@@ -132,4 +132,8 @@ func Test_ASSetMembers(t *testing.T) {
 		[]string{"AS65000:AS-ACME", "as-acme", "AS-ACME:AS65001"},
 		rpsl.ASSetMembers("AS65000:AS-ACME", "as-acme", "", "AS-ACME:AS65001"),
 	)
+	assert.Equal(t,
+		[]string{"AS0", "AS4294967295"},
+		rpsl.ASSetMembers(-1, 0, 4294967295, 4294967296),
+	)
 }

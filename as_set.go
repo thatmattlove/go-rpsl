@@ -1,6 +1,7 @@
 package rpsl
 
 import (
+	"math"
 	"regexp"
 	"strings"
 )
@@ -22,7 +23,7 @@ func ASSetName(name string) string {
 }
 
 // ASSetMembers creates a list of as-set members for use by [rpsl.ASSet]. Bare numbers are
-// prefixed with AS; other strings are kept as-is.
+// prefixed with AS; other strings are kept as-is. Integers outside the uint32 range are dropped.
 func ASSetMembers(vals ...any) []string {
 	out := make([]string, 0, len(vals))
 	for _, v := range vals {
@@ -36,7 +37,9 @@ func ASSetMembers(vals ...any) []string {
 			}
 			continue
 		case int:
-			out = append(out, ASN(t).String())
+			if t >= 0 && int64(t) <= math.MaxUint32 {
+				out = append(out, ASN(t).String())
+			}
 			continue
 		case uint32:
 			out = append(out, ASN(t).String())
