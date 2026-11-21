@@ -42,6 +42,21 @@ key2: 65000`)
 key2: 65000`)
 		assert.Equal(t, exp, result)
 	})
+	t.Run("omitempty empty slice", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Key1 string   `rpsl:"key1"`
+			Key2 []string `rpsl:"key2,omitempty" as:"comma"`
+		}
+		s := &Struct{
+			Key1: "value1",
+			Key2: []string{},
+		}
+		result, err := serialize.Encode(s)
+		require.NoError(t, err)
+		exp := []byte(`key1: value1`)
+		assert.Equal(t, exp, result)
+	})
 	t.Run("non-struct", func(t *testing.T) {
 		t.Parallel()
 		_, err := serialize.Encode("non-struct")

@@ -82,7 +82,7 @@ func Encode(s any) ([]byte, error) {
 		}
 		tags := strings.Split(tag, ",")
 		omitEmpty := slices.Contains(tags, "omitempty")
-		if omitEmpty && valueField.IsZero() {
+		if omitEmpty && (valueField.IsZero() || (valueField.Kind() == reflect.Slice && valueField.Len() == 0)) {
 			continue
 		}
 		key := tags[0]
