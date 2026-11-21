@@ -35,6 +35,18 @@ func RSMembers(vals ...any) []string {
 			if t.IsValid() {
 				out = append(out, strings.ToLower(t.String()))
 			}
+		case []string:
+			for _, tv := range t {
+				out = append(out, RSMembers(tv)...)
+			}
+		case []netip.Prefix:
+			for _, tv := range t {
+				out = append(out, RSMembers(tv)...)
+			}
+		case []any:
+			for _, tv := range t {
+				out = append(out, RSMembers(tv)...)
+			}
 		}
 	}
 	return out
