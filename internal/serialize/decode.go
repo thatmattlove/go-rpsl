@@ -27,6 +27,17 @@ func ProcessStringSlice(current reflect.Value, _new []byte, sep string) reflect.
 	return reflect.AppendSlice(current, reflect.ValueOf(parts))
 }
 
+// hasField reports whether t has a field with an rpsl tag matching key.
+func hasField(t reflect.Type, key string) bool {
+	for i := range t.NumField() {
+		name, _, _ := strings.Cut(t.Field(i).Tag.Get("rpsl"), ",")
+		if name != "-" && name == key {
+			return true
+		}
+	}
+	return false
+}
+
 // Decode decodes a byte string of RPSL data to a Go RPSL object.
 // The second argument must be a pointer to an RPSL struct.
 func Decode(b []byte, o any) error {
@@ -105,6 +116,10 @@ func Decode(b []byte, o any) error {
 
 			// Add extra values to the 'Extra' field map, which is tagged as "-".
 			if keyName == "-" {
+				// Skip attributes that have a matching struct field.
+				if hasField(rt, string(key)) {
+					continue
+				}
 				m := valueField.Interface().(map[string]string)
 				if m == nil {
 					// Initialize map if this is the first pass.

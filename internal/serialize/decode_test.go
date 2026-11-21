@@ -94,8 +94,21 @@ extra1: value1`)
 		var asSet rpsl.ASSet
 		err := serialize.Decode(b, &asSet)
 		require.NoError(t, err)
-		assert.Equal(t, "value1", asSet.Extra["extra1"])
-
+		assert.Equal(t, map[string]string{"extra1": "value1"}, asSet.Extra)
+	})
+	t.Run("without extra", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`route: 192.0.2.0/24
+origin: AS65000
+mnt-by: MNT-TEST
+source: ARIN`)
+		var route rpsl.Route
+		err := serialize.Decode(b, &route)
+		require.NoError(t, err)
+		assert.Nil(t, route.Extra)
+		result, err := serialize.Encode(&route)
+		require.NoError(t, err)
+		assert.Equal(t, b, result)
 	})
 	t.Run("err non ptr", func(t *testing.T) {
 		t.Parallel()
