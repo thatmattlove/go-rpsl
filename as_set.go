@@ -52,6 +52,11 @@ func ASSetMembers(vals ...any) []string {
 				out = append(out, ASSetMembers(tv)...)
 			}
 			continue
+		case []int:
+			for _, tv := range t {
+				out = append(out, ASSetMembers(tv)...)
+			}
+			continue
 		case []uint32:
 			for _, tv := range t {
 				out = append(out, ASSetMembers(tv)...)
