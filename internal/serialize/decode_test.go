@@ -13,8 +13,20 @@ import (
 
 type WillUnmarshalBinaryErr string
 
-func (w WillUnmarshalBinaryErr) UnmarshalBinary([]byte) (*WillUnmarshalBinaryErr, error) {
-	return nil, errors.New("an error")
+func (w WillUnmarshalBinaryErr) UnmarshalBinary([]byte) (WillUnmarshalBinaryErr, error) {
+	return "", errors.New("an error")
+}
+
+type OtherUnmarshalBinary string
+
+func (o OtherUnmarshalBinary) UnmarshalBinary([]byte) error {
+	return errors.New("an error")
+}
+
+type PtrUnmarshalBinary string
+
+func (p PtrUnmarshalBinary) UnmarshalBinary([]byte) (*PtrUnmarshalBinary, error) {
+	return &p, nil
 }
 
 func Test_Decode(t *testing.T) {
@@ -389,6 +401,20 @@ error: irrelevant`)
 		var s Struct
 		err := serialize.Decode(b, &s)
 		assert.ErrorContains(t, err, "an error")
+	})
+	t.Run("skip other unmarshal signature", func(t *testing.T) {
+		t.Parallel()
+		type Struct struct {
+			Other OtherUnmarshalBinary `rpsl:"other"`
+			Ptr   PtrUnmarshalBinary   `rpsl:"ptr"`
+		}
+		b := []byte(`other: value1
+ptr: value2`)
+		var s Struct
+		err := serialize.Decode(b, &s)
+		require.NoError(t, err)
+		assert.Equal(t, OtherUnmarshalBinary("value1"), s.Other)
+		assert.Equal(t, PtrUnmarshalBinary("value2"), s.Ptr)
 	})
 	t.Run("uint32 field", func(t *testing.T) {
 		t.Parallel()

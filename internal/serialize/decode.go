@@ -34,6 +34,13 @@ func ProcessStringSlice(current reflect.Value, _new []byte) reflect.Value {
 	return current
 }
 
+// isUnmarshaler reports whether m has the signature func([]byte) (T, error), where T is
+// assignable to t.
+func isUnmarshaler(m, t reflect.Type) bool {
+	return m.NumIn() == 1 && m.In(0) == reflect.TypeFor[[]byte]() &&
+		m.NumOut() == 2 && m.Out(0).AssignableTo(t) && m.Out(1) == reflect.TypeFor[error]()
+}
+
 // hasField reports whether t has a field with an rpsl tag matching key.
 func hasField(t reflect.Type, key string) bool {
 	for i := range t.NumField() {
@@ -161,7 +168,7 @@ func Decode(b []byte, o any) error {
 					parsed = bytes.TrimSpace(parsed)
 					// If the value is a type that has a valid UnmarshalBinary method, call that method
 					// and assign the value the field.
-					if method := valueField.MethodByName("UnmarshalBinary"); method.IsValid() {
+					if method := valueField.MethodByName("UnmarshalBinary"); method.IsValid() && isUnmarshaler(method.Type(), field.Type) {
 						args := []reflect.Value{reflect.ValueOf(parsed)}
 						result := method.Call(args)
 						// Check and coerce to error if error is non-nil.
