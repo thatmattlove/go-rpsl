@@ -46,6 +46,21 @@ func Test_ASN(t *testing.T) {
 		_, err := a.UnmarshalBinary(b)
 		require.ErrorContains(t, err, "could not be parsed")
 	})
+	t.Run("unmarshal max", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`AS4294967295`)
+		var a rpsl.ASN
+		r, err := a.UnmarshalBinary(b)
+		require.NoError(t, err)
+		assert.Equal(t, rpsl.ASN(4294967295), r)
+	})
+	t.Run("err unmarshal overflow", func(t *testing.T) {
+		t.Parallel()
+		b := []byte(`AS4294967296`)
+		var a rpsl.ASN
+		_, err := a.UnmarshalBinary(b)
+		require.ErrorContains(t, err, "could not be parsed")
+	})
 }
 
 func Test_ASNName(t *testing.T) {

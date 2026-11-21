@@ -21,7 +21,7 @@ func (a ASN) UnmarshalBinary(b []byte) (ASN, error) {
 	if len(b) >= 2 && bytes.EqualFold(b[:2], []byte{0x41, 0x53}) {
 		b = b[2:]
 	}
-	u, err := strconv.ParseUint(string(b), 10, 64)
+	u, err := strconv.ParseUint(string(b), 10, 32)
 	if err != nil {
 		err := errors.Join(fmt.Errorf("value '%s' could not be parsed as uint32", string(b)), err)
 		return 0, err
