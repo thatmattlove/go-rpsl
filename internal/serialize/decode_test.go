@@ -29,6 +29,12 @@ func (p PtrUnmarshalBinary) UnmarshalBinary([]byte) (*PtrUnmarshalBinary, error)
 	return &p, nil
 }
 
+type VariadicUnmarshalBinary string
+
+func (v VariadicUnmarshalBinary) UnmarshalBinary(...byte) (VariadicUnmarshalBinary, error) {
+	return v, nil
+}
+
 func Test_Decode(t *testing.T) {
 	t.Run("base", func(t *testing.T) {
 		t.Parallel()
@@ -480,16 +486,19 @@ error: irrelevant`)
 	t.Run("skip other unmarshal signature", func(t *testing.T) {
 		t.Parallel()
 		type Struct struct {
-			Other OtherUnmarshalBinary `rpsl:"other"`
-			Ptr   PtrUnmarshalBinary   `rpsl:"ptr"`
+			Other    OtherUnmarshalBinary    `rpsl:"other"`
+			Ptr      PtrUnmarshalBinary      `rpsl:"ptr"`
+			Variadic VariadicUnmarshalBinary `rpsl:"variadic"`
 		}
 		b := []byte(`other: value1
-ptr: value2`)
+ptr: value2
+variadic: value3`)
 		var s Struct
 		err := serialize.Decode(b, &s)
 		require.NoError(t, err)
 		assert.Equal(t, OtherUnmarshalBinary("value1"), s.Other)
 		assert.Equal(t, PtrUnmarshalBinary("value2"), s.Ptr)
+		assert.Equal(t, VariadicUnmarshalBinary("value3"), s.Variadic)
 	})
 	t.Run("uint32 field", func(t *testing.T) {
 		t.Parallel()

@@ -35,7 +35,7 @@ func ProcessStringSlice(current reflect.Value, _new []byte) reflect.Value {
 // isUnmarshaler reports whether m has the signature func([]byte) (T, error), where T is
 // assignable to t.
 func isUnmarshaler(m, t reflect.Type) bool {
-	return m.NumIn() == 1 && m.In(0) == reflect.TypeFor[[]byte]() &&
+	return m.NumIn() == 1 && !m.IsVariadic() && m.In(0) == reflect.TypeFor[[]byte]() &&
 		m.NumOut() == 2 && m.Out(0).AssignableTo(t) && m.Out(1) == reflect.TypeFor[error]()
 }
 
