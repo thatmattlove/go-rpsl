@@ -29,6 +29,8 @@ members: 192.0.2.0/24,RS-CORP`)
 		t.Parallel()
 		rs := rpsl.RouteSet{RouteSet: "AS65536:RS-ARIZ-SE-5"}
 		assert.Equal(t, "AS65536:RS-ARIZ-SE-5", rs.String())
+		rs = rpsl.RouteSet{RouteSet: "RS-FOO:AS-BAR"}
+		assert.Equal(t, "RS-FOO:AS-BAR", rs.String())
 	})
 	t.Run("with extra", func(t *testing.T) {
 		rs.AddExtra("extra", "value")
@@ -89,6 +91,9 @@ func Test_RSSetName(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, "AS65536:RS-ARIZ-SE-5", rpsl.RSName("AS65536:RS-ARIZ-SE-5"))
 		assert.Equal(t, "AS1:RS-EXPORT:AS2", rpsl.RSName("AS1:RS-EXPORT:AS2"))
+		assert.Equal(t, "RS-FOO:AS-BAR", rpsl.RSName("RS-FOO:AS-BAR"))
+		assert.Equal(t, "AS-FOO:RS-BAR", rpsl.RSName("AS-FOO:RS-BAR"))
+		assert.Equal(t, "RS-FOO:", rpsl.RSName("RS-FOO:"))
 	})
 }
 

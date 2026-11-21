@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-var rsName = regexp.MustCompile(`(?i)^(AS\d+:)*RS-[^:]*(:(AS\d+|RS-[^:]*))*$`)
+var startsWithRSDash = regexp.MustCompile(`(?i)^RS-`)
 var startsWithRS = regexp.MustCompile(`(?i)^RS.*$`)
 
-// RSName creates a route-set member type, e.g. RS-ACME or AS65000:RS-ACME. Valid route-set
-// names, including hierarchical names, are returned unchanged.
+// RSName creates a route-set member type, e.g. RS-ACME or AS65000:RS-ACME. Names that already
+// begin with RS- and hierarchical names are returned unchanged.
 func RSName(name string) string {
-	if rsName.MatchString(name) {
+	if startsWithRSDash.MatchString(name) || strings.Contains(name, ":") {
 		return name
 	}
 	if startsWithRS.MatchString(name) {
